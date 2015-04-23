@@ -1,0 +1,14 @@
+import javax.swing.*;
+
+public class TaskList extends JFrame {
+	
+	ListView lv;
+	GridView gv;
+	CalendarView cv;
+	
+	public TaskList() {
+		this.setSize(800, 450);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setVisible(true);
+	}
+}

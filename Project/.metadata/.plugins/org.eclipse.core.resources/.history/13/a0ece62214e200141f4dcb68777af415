@@ -1,0 +1,8 @@
+import javax.swing.*;
+
+public class GridView extends JPanel {
+
+	public GridView(TaskList context) {
+		
+	}
+}

@@ -1,0 +1,40 @@
+import java.awt.*;
+import javax.swing.*;
+
+public class TaskList extends JFrame {
+	
+	ListView lv;
+	GridView gv;
+	CalendarView cv;
+	JPanel cardPanel;
+	JComboBox viewSwitcher;
+	
+	public TaskList(String name) {
+		super(name);
+		
+		this.setSize(1000, 650);
+		this.setLayout(new GridLayout(2, 1));
+		this.setMinimumSize(new Dimension(1000, 650));
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setVisible(true);
+		
+		String comboBoxItems[] = {"List View", "Grid View", "Calendar View"};
+		viewSwitcher = new JComboBox(comboBoxItems);
+		viewSwitcher.setLocation(0, 0);
+		this.addWindowListener(viewSwitcher);
+		
+		lv = new ListView();
+		gv = new GridView();
+		cv = new CalendarView();
+		
+		cardPanel = new JPanel(new CardLayout());		
+		cardPanel.add(lv);
+		cardPanel.add(gv);
+		cardPanel.add(cv);
+		cardPanel.setLocation(0, 1);
+		
+		this.add(cardPanel);
+		//this.setContentPane(cardPanel);
+		
+	}
+}

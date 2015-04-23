@@ -1,0 +1,12 @@
+import javax.swing.*;
+
+public class TaskList extends JFrame {
+	
+	ListView lv;
+	GridView gv;
+	CalendarView cv;
+	
+	public TaskList() {
+		
+	}
+}

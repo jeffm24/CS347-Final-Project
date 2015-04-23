@@ -1,0 +1,5 @@
+import javax.swing.*;
+
+public class ListView extends JPanel {
+
+}

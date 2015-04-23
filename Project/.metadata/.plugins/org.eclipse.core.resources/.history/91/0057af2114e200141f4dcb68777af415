@@ -1,0 +1,8 @@
+import javax.swing.*;
+
+public class CalendarView extends JPanel {
+	
+	public CalendarView(TaskList context) {
+		
+	}
+}

@@ -1,0 +1,8 @@
+import javax.swing.*;
+
+public class ListView extends JPanel {
+	
+	public ListView(JFrame context) {
+		
+	}
+}

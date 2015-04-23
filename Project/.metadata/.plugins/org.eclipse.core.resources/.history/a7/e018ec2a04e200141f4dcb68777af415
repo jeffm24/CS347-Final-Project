@@ -1,0 +1,8 @@
+import javax.swing.*;
+
+public class GridView {
+
+	public GridView(JFrame context) {
+		
+	}
+}
