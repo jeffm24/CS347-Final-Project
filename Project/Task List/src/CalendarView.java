@@ -1,6 +1,6 @@
 import javax.swing.*;
 
-public class CalendarView extends JPanel {
+public class CalendarView extends View {
 	
 	JLabel l;
 	
