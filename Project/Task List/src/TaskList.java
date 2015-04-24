@@ -10,21 +10,23 @@ import javax.swing.*;
 
 public class TaskList extends JFrame implements ItemListener {
 	
-	ListView lv;
-	GridView gv;
-	CalendarView cv;
+	ListView lv;								//ListView panel
+	GridView gv;								//GridView panel
+	CalendarView cv;							//CalendarView panel
 	
-	JMenuBar menuBar;
-	JMenu fileMenu;
-	JMenuItem open, save, exit, impt, expt;
-	JMenu addMenu;
-	JMenuItem addTask, addGroup;
+	JMenuBar menuBar;							//main menu bar
+	JMenu fileMenu;								//"File" menu
+	JMenuItem open, save, exit, impt, expt;		//"File menu items
+	JMenu addMenu;								//"Add" menu
+	JMenuItem addTask, addGroup;				//"Add" menu items
 	
-	ArrayList<View> views;
-	int currentView;
-	JPanel cardPanel;
-	JComboBox<String> viewSwitcher;
-	GridBagConstraints c;
+	ArrayList<View> views;						//ArrayList to hold the different views
+	int currentView;							//Index in views of the current view
+	JPanel cardPanel;							//CardLayout panel for switching between views
+	JComboBox<String> viewSwitcher;				//JComboBox for initiating view switches
+	GridBagConstraints c;						//Constraints for the menuBar GridBagLayout
+	
+	ArrayList<Group> groups;					//Main ArrayList of all current groups
 	
 	/*
 	 * Constructor.
@@ -40,20 +42,25 @@ public class TaskList extends JFrame implements ItemListener {
 		//initialize the menu bar
 		initMenuBar();	
 		
+		//create different view panels
 		lv = new ListView();
 		gv = new GridView();
 		cv = new CalendarView();
+		views = new ArrayList<View>();
 		views.add(lv);
 		views.add(gv);
 		views.add(cv);
 		currentView = 0;
 		
+		//add all view panels to the cardlayout
 		cardPanel = new JPanel(new CardLayout());		
 		cardPanel.add(lv, "List View");
 		cardPanel.add(gv, "Grid View");	
 		cardPanel.add(cv, "Calendar View");
 		this.add(cardPanel);	
 		this.setContentPane(cardPanel);
+		
+		groups = new ArrayList<Group>();
 		
 		this.pack();
 		this.setVisible(true);
@@ -124,10 +131,10 @@ public class TaskList extends JFrame implements ItemListener {
 	
 	/*
 	 * Creates a JOptionPane to get input from the user for adding a task.
+	 * Adds the task and returns true if all fields were entered correctly.
+	 * Does nothing and returns false otherwise.
 	 */
-	public void addTask() {
-		int i;
-		
+	public boolean addTask() {
 		JTextField groupField = new JTextField();
 		JTextField nameField = new JTextField();
 		JTextField prioField = new JTextField();
@@ -155,11 +162,10 @@ public class TaskList extends JFrame implements ItemListener {
 		int result = JOptionPane.showConfirmDialog(null, myPanel, 
 				"Enter Task Info", JOptionPane.OK_CANCEL_OPTION);
 	    if (result == JOptionPane.OK_OPTION) {
-      		views.get(currentView);
       		Task newTask = null;
       		
-			for (i = 0 ; i < View.groups.size() ; i++) {
-      			if (View.groups.get(i).equals(groupField.getText())) {
+			for (int i = 0 ; i < groups.size() ; i++) {
+      			if (groups.get(i).equals(groupField.getText())) {
       				//create new task if possible with given input
 					try {
 						String name = nameField.getText();
@@ -168,16 +174,67 @@ public class TaskList extends JFrame implements ItemListener {
 						Date date = format.parse(dateField.getText());
 						Date alarm = format.parse(alarmField.getText());
 						newTask = new Task(name, priority, desc, date, alarm);
-	      				View.groups.get(i).addTask(newTask);
+	      				groups.get(i).addTask(newTask);
+	      				
+	      				//TESTING
+	      				System.out.println("Created task: " + name + " in group: " + groupField.getText());
+	      				return true;
 					} catch (ParseException e) {
 						System.out.println("Invalid date format");
 					}
       			}
       		}
-			//if newTask is null, the group was not found
-			if (newTask == null)
-				System.out.println("Could not find group");
+			System.out.println("Could not find group");
       	}
+	    
+	    return false;
+	}
+	
+	/*
+	 * Creates a JOptionPane to get input from the user for adding a group.
+	 * Adds the group and returns true if all fields were entered correctly and the group does not
+	 * 		not already exist.
+	 * Does nothing and returns false otherwise. 
+	 */
+	public boolean addGroup() {
+		boolean groupExists = false;
+		
+		JTextField nameField = new JTextField();
+		JTextField prioField = new JTextField();
+		JTextArea descField = new JTextArea();
+		
+		JPanel myPanel = new JPanel(new GridLayout(3, 1));
+		myPanel.add(new JLabel("Name:"));
+		myPanel.add(nameField);
+		myPanel.add(new JLabel("Priority:"));
+		myPanel.add(prioField);
+		myPanel.add(new JLabel("Description:"));
+		myPanel.add(descField);
+		
+		int result = JOptionPane.showConfirmDialog(null, myPanel, 
+				"Enter Group Info", JOptionPane.OK_CANCEL_OPTION);
+	    if (result == JOptionPane.OK_OPTION) {
+	    	Group newGroup = null;
+	    	
+	    	//check whether or not a group with the same name already exists
+	    	for (int i = 0 ; i < groups.size() ; i++) {
+	    		if (groups.get(i).equals(nameField.getText())) {
+	    			groupExists = true;
+	    			System.out.println("Group already exists.");
+	    			return false;
+	    		}
+	    	}
+	    	
+	    	//if the group does not exist, add it to the groups array
+	    	if (!groupExists) {
+	    		newGroup = new Group(nameField.getText(), Integer.parseInt(prioField.getText()), descField.getText());
+	    		groups.add(newGroup);
+	    		System.out.println("Group: " + nameField.getText() + " created successfully.");
+	    		return true;
+	    	}
+	    }
+	    System.out.println("Could not create group.");
+	    return false;
 	}
 	
 	/*
@@ -197,8 +254,12 @@ public class TaskList extends JFrame implements ItemListener {
 			currentView = 2;
 			break;
 		}
+		
 		CardLayout cl = (CardLayout)(cardPanel.getLayout());
 	    cl.show(cardPanel, (String)e.getItem());
+	    
+	    //TESTING
+		System.out.println("Changed currentView to " + currentView);
 	}
 	
 	/*
@@ -232,7 +293,7 @@ public class TaskList extends JFrame implements ItemListener {
 			} 
 			//if "Add Groups" is clicked under "Add"
 			else if (e.getSource().equals(addGroup)) {
-				System.out.println("add group");
+				addGroup();
 			}
 		}
 	}
