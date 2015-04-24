@@ -29,7 +29,7 @@ public class TaskList extends JFrame implements ItemListener {
 	ArrayList<Group> groups;					//Main ArrayList of all current groups
 	
 	/*
-	 * Constructor.
+	 * Constructor. Initializes the 
 	 */
 	public TaskList(String name) {
 		super(name);
@@ -138,7 +138,7 @@ public class TaskList extends JFrame implements ItemListener {
 		JTextField groupField = new JTextField();
 		JTextField nameField = new JTextField();
 		JTextField prioField = new JTextField();
-		JTextArea descField = new JTextArea();
+		JTextField descField = new JTextField();
 		DateFormat format = new SimpleDateFormat("yyyy/MM/dd");
 	    JFormattedTextField dateField = new JFormattedTextField(format);
 	    dateField.setText("yyyy/MM/dd");
@@ -164,8 +164,16 @@ public class TaskList extends JFrame implements ItemListener {
 	    if (result == JOptionPane.OK_OPTION) {
       		Task newTask = null;
       		
+      		//check if any of the fields were left blank
+	    	if (groupField.getText().equals("") || nameField.getText().equals("") || prioField.getText().equals("") 
+	    			|| descField.getText().equals("") || dateField.getText().equals("") || alarmField.getText().equals("")) {
+	    		JOptionPane.showMessageDialog(null, "Please make sure all fields are filled out.", "ERROR", JOptionPane.OK_OPTION);
+	    		return false;
+	    	}
+      		
+	    	//check for a group to add the task to with the same name as the given group
 			for (int i = 0 ; i < groups.size() ; i++) {
-      			if (groups.get(i).equals(groupField.getText())) {
+      			if (groups.get(i).getName().equals(groupField.getText())) {
       				//create new task if possible with given input
 					try {
 						String name = nameField.getText();
@@ -180,12 +188,15 @@ public class TaskList extends JFrame implements ItemListener {
 	      				System.out.println("Created task: " + name + " in group: " + groupField.getText());
 	      				return true;
 					} catch (ParseException e) {
-						System.out.println("Invalid date format");
+						JOptionPane.showMessageDialog(null, "Invalid date format. Please try again.", "ERROR", JOptionPane.OK_OPTION);
 					}
       			}
-      		}
-			System.out.println("Could not find group");
-      	}
+      		} 		
+			
+			JOptionPane.showMessageDialog(null, "Could not find group. Please try again.", "ERROR", JOptionPane.OK_OPTION);
+      	} else if (result == JOptionPane.CANCEL_OPTION) {
+	    	return true;
+	    }	
 	    
 	    return false;
 	}
@@ -201,7 +212,7 @@ public class TaskList extends JFrame implements ItemListener {
 		
 		JTextField nameField = new JTextField();
 		JTextField prioField = new JTextField();
-		JTextArea descField = new JTextArea();
+		JTextField descField = new JTextField();
 		
 		JPanel myPanel = new JPanel(new GridLayout(3, 1));
 		myPanel.add(new JLabel("Name:"));
@@ -216,11 +227,18 @@ public class TaskList extends JFrame implements ItemListener {
 	    if (result == JOptionPane.OK_OPTION) {
 	    	Group newGroup = null;
 	    	
+	    	//check if any of the fields were left blank
+	    	if (nameField.getText().equals("") || prioField.getText().equals("") || descField.getText().equals("")) {
+	    		JOptionPane.showMessageDialog(null, "Please make sure all fields are filled out.", "ERROR", JOptionPane.OK_OPTION);
+	    		return false;
+	    	}
+	    	
 	    	//check whether or not a group with the same name already exists
+	    	String gName = nameField.getText();
 	    	for (int i = 0 ; i < groups.size() ; i++) {
-	    		if (groups.get(i).equals(nameField.getText())) {
+	    		if (groups.get(i).getName().equals(gName)) {
 	    			groupExists = true;
-	    			System.out.println("Group already exists.");
+	    			JOptionPane.showMessageDialog(null, "Group already exists.", "ERROR", JOptionPane.OK_OPTION);
 	    			return false;
 	    		}
 	    	}
@@ -232,14 +250,19 @@ public class TaskList extends JFrame implements ItemListener {
 	    		System.out.println("Group: " + nameField.getText() + " created successfully.");
 	    		return true;
 	    	}
+	    } else if (result == JOptionPane.CANCEL_OPTION) {
+	    	return true;
 	    }
-	    System.out.println("Could not create group.");
+	    
+	    JOptionPane.showMessageDialog(null, "Could not create group. Please try again.", "ERROR", JOptionPane.OK_OPTION);
 	    return false;
 	}
 	
 	/*
 	 * (non-Javadoc)
 	 * @see java.awt.event.ItemListener#itemStateChanged(java.awt.event.ItemEvent)
+	 * 
+	 * Gets the state changed event from the JComboBox to switch to the appropriate view.
 	 */
 	@Override
 	public void itemStateChanged(ItemEvent e) {
@@ -289,11 +312,13 @@ public class TaskList extends JFrame implements ItemListener {
 			} 
 			//if "Add Task" is clicked under "Add"
 			else if (e.getSource().equals(addTask)) {
-				addTask();
+				while(!addTask())
+					;
 			} 
 			//if "Add Groups" is clicked under "Add"
 			else if (e.getSource().equals(addGroup)) {
-				addGroup();
+				while(!addGroup())
+					;
 			}
 		}
 	}
