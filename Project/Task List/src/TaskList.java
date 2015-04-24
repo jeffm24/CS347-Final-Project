@@ -25,7 +25,6 @@ public class TaskList extends JFrame implements ItemListener {
 		super(name);
 		
 		this.setSize(1000, 650);
-		this.setLayout(new GridLayout(3, 1));
 		this.setMinimumSize(new Dimension(1000, 650));
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
@@ -33,14 +32,18 @@ public class TaskList extends JFrame implements ItemListener {
 		initMenuBar();	
 		
 		lv = new ListView();
+		lv.setSize(getWidth(), getHeight());
 		gv = new GridView();
+		gv.setSize(getWidth(), getHeight());
 		cv = new CalendarView();
+		cv.setSize(getWidth(), getHeight());
 		
 		cardPanel = new JPanel(new CardLayout());		
 		cardPanel.add(lv, "List View");
 		cardPanel.add(gv, "Grid View");	
 		cardPanel.add(cv, "Calendar View");
 		this.add(cardPanel);	
+		this.setContentPane(cardPanel);
 		
 		this.pack();
 		this.setVisible(true);
@@ -120,23 +123,36 @@ public class TaskList extends JFrame implements ItemListener {
 	}
 	
 	/*
-	 * Action Listener for menu item clicks.
+	 * Action Listener to get menu item clicks and act on them.
 	 */
 	class MenuActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
+			//if "Open" is clicked under "File"
 			if (e.getSource().equals(open)) {
 				System.out.println("open");
-			} else if (e.getSource().equals(save)) {
+			} 
+			//if "Save" is clicked under "File"
+			else if (e.getSource().equals(save)) {
 				System.out.println("save");
-			} else if (e.getSource().equals(impt)) {
+			} 
+			//if "Import" is clicked under "File"
+			else if (e.getSource().equals(impt)) {
 				System.out.println("import");
-			} else if (e.getSource().equals(expt)) {
+			} 
+			//if "Export" is clicked under "File"
+			else if (e.getSource().equals(expt)) {
 				System.out.println("export");
-			} else if (e.getSource().equals(exit)) {
-				System.out.println("exit");
-			} else if (e.getSource().equals(addTask)) {
+			} 
+			//if "Exit" is clicked under "File"
+			else if (e.getSource().equals(exit)) {
+				System.exit(0);
+			} 
+			//if "Add Task" is clicked under "Add"
+			else if (e.getSource().equals(addTask)) {
 				System.out.println("add task");
-			} else if (e.getSource().equals(addGroup)) {
+			} 
+			//if "Add Groups" is clicked under "Add"
+			else if (e.getSource().equals(addGroup)) {
 				System.out.println("add group");
 			}
 		}

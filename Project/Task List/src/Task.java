@@ -73,6 +73,4 @@ public class Task {
 	public void setAlarm(TimerTask alarm) {
 		this.alarm = alarm;
 	}
-	
-	
 }
