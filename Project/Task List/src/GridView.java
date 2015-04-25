@@ -1,6 +1,6 @@
 import javax.swing.*;
 
-public class GridView extends View {
+public class GridView extends JPanel {
 
 	JLabel l;
 	
