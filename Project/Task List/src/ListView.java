@@ -47,11 +47,15 @@ public class ListView extends JPanel implements MouseInputListener{
         g2.setRenderingHints(rh);
 
         //Draw Current Group name (if there is one)
-        if (pages.size() == 0)
-        	g2.drawString("No Groups to show.", this.getWidth() / 2 - 50, 10);
-        else
-        	g2.drawString(parent.groups.get(currentPage).getName(), this.getWidth() / 2 - parent.groups.get(currentPage).getName().length(), 10);
-        
+        g2.setFont(new Font("Ariel", Font.BOLD, 18));
+        String pageTitle;
+        if (pages.size() == 0) {
+        	pageTitle = "No Groups to Show";
+        } else {
+        	pageTitle = parent.groups.get(currentPage).getName();
+        }
+        g2.drawString(pageTitle, this.getWidth() / 2 - (g2.getFontMetrics().stringWidth(pageTitle) / 2), 16);
+        	
         //draw the left and right buttons
         drawLRButtons(g2);
         
@@ -130,8 +134,9 @@ public class ListView extends JPanel implements MouseInputListener{
     		for (x = 40, y = 30, w = 300, h = 50, j = 0 ; j < groups.get(i).tasks.size() ; j++) {
     			pages.get(i).add(new ListItem(x, y, w, h, groups.get(i), groups.get(i).tasks.get(j)));
     			
+    			//if placing the next task would go out of bounds (of the window), wrap to the next column
     			if (y + h + 10 + h > this.getHeight()) {
-    				y = 10;
+    				y = 30;
     				x += w + 10;
     			} else {
     				y += h + 10;
