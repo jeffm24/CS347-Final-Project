@@ -135,23 +135,40 @@ public class TaskList extends JFrame implements ItemListener {
 	 * Does nothing and returns false otherwise.
 	 */
 	public boolean addTask() {
-		JTextField groupField = new JTextField();
+		//if there are no groups, the user cannot add a task
+		if (groups.size() == 0) {
+			JOptionPane.showMessageDialog(null, "Please create a group first.", "ERROR", JOptionPane.OK_OPTION);
+			return true;
+		}
+		
+		//create pop-up dialogue fields
+		JComboBox<String> groupBox = new JComboBox<String>();
+		for (int i = 0 ; i < groups.size() ; i++)
+			groupBox.addItem(groups.get(i).getName());
+		
 		JTextField nameField = new JTextField();
-		JTextField prioField = new JTextField();
+		
+		JComboBox<Integer> prioBox = new JComboBox<Integer>();
+		for (int i = 1 ; i <= 10 ; i++)
+			prioBox.addItem(i);
+		
 		JTextField descField = new JTextField();
+		
 		DateFormat format = new SimpleDateFormat("yyyy/MM/dd");
 	    JFormattedTextField dateField = new JFormattedTextField(format);
 	    dateField.setText("yyyy/MM/dd");
-		JFormattedTextField alarmField = new JFormattedTextField(format);
+		
+	    JFormattedTextField alarmField = new JFormattedTextField(format);
 		alarmField.setText("yyyy/MM/dd");
 		
+		//add components to JPanel for pop-up 
 		JPanel myPanel = new JPanel(new GridLayout(6, 1));
 		myPanel.add(new JLabel("Group:"));
-		myPanel.add(groupField);
+		myPanel.add(groupBox);
 		myPanel.add(new JLabel("Name:"));
 		myPanel.add(nameField);
 		myPanel.add(new JLabel("Priority:"));
-		myPanel.add(prioField);
+		myPanel.add(prioBox);
 		myPanel.add(new JLabel("Description:"));
 		myPanel.add(descField);
 		myPanel.add(new JLabel("Date:"));
@@ -165,22 +182,22 @@ public class TaskList extends JFrame implements ItemListener {
       		Task newTask = null;
       		
       		//check if any of the fields were left blank
-	    	if (groupField.getText().equals("") || nameField.getText().equals("") || prioField.getText().equals("") 
-	    			|| descField.getText().equals("") || dateField.getText().equals("") || alarmField.getText().equals("")) {
+	    	if (nameField.getText().equals("") || descField.getText().equals("") || dateField.getText().equals("") || alarmField.getText().equals("")) {
 	    		JOptionPane.showMessageDialog(null, "Please make sure all fields are filled out.", "ERROR", JOptionPane.OK_OPTION);
 	    		return false;
 	    	}
       		
 	    	//check for a group to add the task to with the same name as the given group
 			for (int i = 0 ; i < groups.size() ; i++) {
-      			if (groups.get(i).getName().equals(groupField.getText())) {
+      			if (groups.get(i).getName().equals(groupBox.getSelectedItem())) {
       				//create new task if possible with given input
 					try {
 						String name = nameField.getText();
-	      				int priority = Integer.parseInt(prioField.getText());
+	      				int priority = (int)prioBox.getSelectedItem();
 	      				String desc = descField.getText();
 						Date date = format.parse(dateField.getText());
 						Date alarm = format.parse(alarmField.getText());
+						
 						newTask = new Task(name, priority, desc, date, alarm);
 	      				groups.get(i).addTask(newTask);
 	      				
@@ -188,7 +205,7 @@ public class TaskList extends JFrame implements ItemListener {
 	      				lv.generatePages(groups);
 	      				
 	      				//TESTING
-	      				System.out.println("Created task: " + name + " in group: " + groupField.getText());
+	      				System.out.println("Created task: " + name + " in group: " + groupBox.getSelectedItem());
 	      				return true;
 					} catch (ParseException e) {
 						JOptionPane.showMessageDialog(null, "Invalid date format. Please try again.", "ERROR", JOptionPane.OK_OPTION);
@@ -213,15 +230,19 @@ public class TaskList extends JFrame implements ItemListener {
 	public boolean addGroup() {
 		boolean groupExists = false;
 		
+		//create pop-up dialogue fields
 		JTextField nameField = new JTextField();
-		JTextField prioField = new JTextField();
+		JComboBox<Integer> prioBox = new JComboBox<Integer>();
+		for (int i = 1 ; i <= 10 ; i++)
+			prioBox.addItem(i);
 		JTextField descField = new JTextField();
 		
+		//add components to JPanel for pop-up 
 		JPanel myPanel = new JPanel(new GridLayout(3, 1));
 		myPanel.add(new JLabel("Name:"));
 		myPanel.add(nameField);
 		myPanel.add(new JLabel("Priority:"));
-		myPanel.add(prioField);
+		myPanel.add(prioBox);
 		myPanel.add(new JLabel("Description:"));
 		myPanel.add(descField);
 		
@@ -231,7 +252,7 @@ public class TaskList extends JFrame implements ItemListener {
 	    	Group newGroup = null;
 	    	
 	    	//check if any of the fields were left blank
-	    	if (nameField.getText().equals("") || prioField.getText().equals("") || descField.getText().equals("")) {
+	    	if (nameField.getText().equals("") || descField.getText().equals("")) {
 	    		JOptionPane.showMessageDialog(null, "Please make sure all fields are filled out.", "ERROR", JOptionPane.OK_OPTION);
 	    		return false;
 	    	}
@@ -248,7 +269,7 @@ public class TaskList extends JFrame implements ItemListener {
 	    	
 	    	//if the group does not exist, add it to the groups array
 	    	if (!groupExists) {
-	    		newGroup = new Group(nameField.getText(), Integer.parseInt(prioField.getText()), descField.getText());
+	    		newGroup = new Group(nameField.getText(), (Integer)prioBox.getSelectedItem(), descField.getText());
 	    		groups.add(newGroup);
 	    		
 	    		//re-generate pages for listView
