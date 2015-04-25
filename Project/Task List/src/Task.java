@@ -21,14 +21,14 @@ public class Task {
 		alarm = null;
 	}
 	
-	public Task(String n, int p, String d, Date due, Date a, Timer tim, TimerTask task){
+	public Task(String n, int p, String d, Date due, Date a){
 		name = n;
 		priority = p;
 		description = d;
 		dueDate = due;
 		alarmDate = a;
-		t = tim;
-		alarm = task;
+		//t = tim;
+		//alarm = task;
 	}
 	
 	public String getName() {
