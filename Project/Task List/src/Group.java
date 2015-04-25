@@ -19,12 +19,23 @@ public class Group {
 		description = d;
 		tasks = new ArrayList<Task>();
 	}
+	
 	public int addTask(Task t){
 		if(t != null){
 			tasks.add(t);
 			return tasks.size();
 		}
 		return -1;
+	}
+	
+	public void removeTask(Task t) {
+		if (t != null) {
+			for (int i = 0 ; i < tasks.size() ; i++) {
+				if (tasks.get(i).getName().equals(t.getName())) {
+					tasks.remove(t);
+				}
+			}
+		}
 	}
 	
 	public Task getTask(String name){

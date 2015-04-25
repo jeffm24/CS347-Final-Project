@@ -5,10 +5,11 @@ import java.awt.geom.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class ListView extends View implements MouseInputListener{
+public class ListView extends JPanel implements MouseInputListener{
 	
 	Rectangle2D.Double right, left;
-	ArrayList<ArrayList<Rectangle2D.Double>> pages;
+	ArrayList<ArrayList<ListItem>> pages;
+	TaskList parent;
 	int currentPage;
 	int xPoints[], yPoints[];
 	boolean hasLeft, hasRight;
@@ -17,13 +18,15 @@ public class ListView extends View implements MouseInputListener{
 	/*
 	 * Constructor.
 	 */
-	public ListView() {		
+	public ListView(TaskList p) {		
 		xPoints = new int[3];
 		yPoints = new int[3];
 		initLR = false;
 		
-		pages = new ArrayList<ArrayList<Rectangle2D.Double>>();
+		pages = new ArrayList<ArrayList<ListItem>>();
 		currentPage = 0;
+		
+		parent = p;
 		
 		this.addMouseListener(this);
 	}
@@ -43,7 +46,19 @@ public class ListView extends View implements MouseInputListener{
 
         g2.setRenderingHints(rh);
 
+        //Draw Current Group name (if there is one)
+        if (pages.size() == 0)
+        	g2.drawString("No Groups to show.", this.getWidth() / 2 - 50, 10);
+        else
+        	g2.drawString(parent.groups.get(currentPage).getName(), this.getWidth() / 2 - parent.groups.get(currentPage).getName().length(), 10);
+        
+        //draw the left and right buttons
         drawLRButtons(g2);
+        
+        //draw all of tasks on the current page
+        for (int i = 0 ; pages.size() != 0 && i < pages.get(currentPage).size() ; i++) {
+        	pages.get(currentPage).get(i).drawSelf(g2);
+        }
     }
     
     /*
@@ -60,7 +75,7 @@ public class ListView extends View implements MouseInputListener{
     	g2.setColor(new Color(0, 0, 0, 155));
     	g2.fill(right); 
     	
-    	if (currentPage < pages.size())
+    	if (currentPage < pages.size() - 1)
     		g2.setColor(Color.WHITE);
     	else
     		g2.setColor(Color.GRAY);
@@ -98,17 +113,32 @@ public class ListView extends View implements MouseInputListener{
     }
     
     /*
-     * Draws the current page 
-     */
-    public void drawCurrentPage(Graphics2D g2) {
-    	
-    }
-    
-    /*
      * Populates the pages array
      */
     public void generatePages(ArrayList<Group> groups) {
+    	int i, j;
+    	int x, y, w, h;
     	
+    	//clear out the old pages arraylist
+    	pages.clear();
+    	
+    	//add a page for every group
+    	for (i = 0 ; i < groups.size() ; i++) {
+    		pages.add(new ArrayList<ListItem>());
+    		
+    		//for every task in the current group, create a ListItem with the proper positioning
+    		for (x = 40, y = 30, w = 300, h = 50, j = 0 ; j < groups.get(i).tasks.size() ; j++) {
+    			pages.get(i).add(new ListItem(x, y, w, h, groups.get(i), groups.get(i).tasks.get(j)));
+    			
+    			if (y + h + 10 + h > this.getHeight()) {
+    				y = 10;
+    				x += w + 10;
+    			} else {
+    				y += h + 10;
+    			}
+    		}
+    	}
+    	this.repaint();
     }
     
     /*
@@ -117,10 +147,20 @@ public class ListView extends View implements MouseInputListener{
      */
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		//if the right button is clicked, move page right (if possible)
 		if (right.contains(e.getPoint())) {
 			System.out.println("Right button clicked");
+			if (currentPage < pages.size() - 1) {
+				currentPage++;
+				repaint();
+			}
+		//if the left button is clicked, move page left (if possible)
 		} else if (left.contains(e.getPoint())) {
 			System.out.println("Left button clicked");
+			if (currentPage > 0) {
+				currentPage--;
+				repaint();
+			}
 		}
 	}
 

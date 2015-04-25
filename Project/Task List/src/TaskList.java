@@ -20,7 +20,7 @@ public class TaskList extends JFrame implements ItemListener {
 	JMenu addMenu;								//"Add" menu
 	JMenuItem addTask, addGroup;				//"Add" menu items
 	
-	ArrayList<View> views;						//ArrayList to hold the different views
+	ArrayList<JPanel> views;					//ArrayList to hold the different views
 	int currentView;							//Index in views of the current view
 	JPanel cardPanel;							//CardLayout panel for switching between views
 	JComboBox<String> viewSwitcher;				//JComboBox for initiating view switches
@@ -29,7 +29,7 @@ public class TaskList extends JFrame implements ItemListener {
 	ArrayList<Group> groups;					//Main ArrayList of all current groups
 	
 	/*
-	 * Constructor. Initializes the 
+	 * Constructor.
 	 */
 	public TaskList(String name) {
 		super(name);
@@ -43,10 +43,10 @@ public class TaskList extends JFrame implements ItemListener {
 		initMenuBar();	
 		
 		//create different view panels
-		lv = new ListView();
+		lv = new ListView(this);
 		gv = new GridView();
 		cv = new CalendarView();
-		views = new ArrayList<View>();
+		views = new ArrayList<JPanel>();
 		views.add(lv);
 		views.add(gv);
 		views.add(cv);
@@ -184,6 +184,9 @@ public class TaskList extends JFrame implements ItemListener {
 						newTask = new Task(name, priority, desc, date, alarm);
 	      				groups.get(i).addTask(newTask);
 	      				
+	      				//re-generate pages for listView
+	      				lv.generatePages(groups);
+	      				
 	      				//TESTING
 	      				System.out.println("Created task: " + name + " in group: " + groupField.getText());
 	      				return true;
@@ -247,6 +250,11 @@ public class TaskList extends JFrame implements ItemListener {
 	    	if (!groupExists) {
 	    		newGroup = new Group(nameField.getText(), Integer.parseInt(prioField.getText()), descField.getText());
 	    		groups.add(newGroup);
+	    		
+	    		//re-generate pages for listView
+	    		lv.generatePages(groups);
+	    		
+	    		//TESTING
 	    		System.out.println("Group: " + nameField.getText() + " created successfully.");
 	    		return true;
 	    	}
