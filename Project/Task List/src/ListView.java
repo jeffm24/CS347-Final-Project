@@ -233,9 +233,13 @@ public class ListView extends JPanel implements MouseInputListener{
 						li.myGroup = newGroup;
 						li.myGroup.addTask(li.myTask);
 						listItems.get(i).add(li);
+						
+						//if groups changed re-generate group pages with new tasks  
+	      				generatePages(parent.groups);
+					} else {
+						//if groups weren't changed, just repaint with new info
+						repaint();
 					}
-      				
-      				repaint();
       				
       				break;
 				} catch (ParseException e) {
