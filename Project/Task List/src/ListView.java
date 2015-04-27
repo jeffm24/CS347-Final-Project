@@ -1,14 +1,19 @@
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
+
 import java.awt.event.MouseEvent;
 import java.awt.geom.*;
 import java.awt.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class ListView extends JPanel implements MouseInputListener{
 	
 	Rectangle2D.Double right, left;
-	ArrayList<ArrayList<ListItem>> pages;
+	ArrayList<ArrayList<ListItem>> listItems;
 	TaskList parent;
 	int currentPage;
 	int xPoints[], yPoints[];
@@ -23,7 +28,7 @@ public class ListView extends JPanel implements MouseInputListener{
 		yPoints = new int[3];
 		initLR = false;
 		
-		pages = new ArrayList<ArrayList<ListItem>>();
+		listItems = new ArrayList<ArrayList<ListItem>>();
 		currentPage = 0;
 		
 		parent = p;
@@ -49,7 +54,7 @@ public class ListView extends JPanel implements MouseInputListener{
         //Draw Current Group name (if there is one)
         g2.setFont(new Font("Ariel", Font.BOLD, 18));
         String pageTitle;
-        if (pages.size() == 0) {
+        if (listItems.size() == 0) {
         	pageTitle = "No Groups to Show";
         } else {
         	pageTitle = parent.groups.get(currentPage).getName();
@@ -60,8 +65,8 @@ public class ListView extends JPanel implements MouseInputListener{
         drawLRButtons(g2);
         
         //draw all of tasks on the current page
-        for (int i = 0 ; pages.size() != 0 && i < pages.get(currentPage).size() ; i++) {
-        	pages.get(currentPage).get(i).drawSelf(g2);
+        for (int i = 0 ; listItems.size() != 0 && i < listItems.get(currentPage).size() ; i++) {
+        	listItems.get(currentPage).get(i).drawSelf(g2);
         }
     }
     
@@ -79,7 +84,7 @@ public class ListView extends JPanel implements MouseInputListener{
     	g2.setColor(new Color(0, 0, 0, 155));
     	g2.fill(right); 
     	
-    	if (currentPage < pages.size() - 1)
+    	if (currentPage < listItems.size() - 1)
     		g2.setColor(Color.WHITE);
     	else
     		g2.setColor(Color.GRAY);
@@ -117,22 +122,22 @@ public class ListView extends JPanel implements MouseInputListener{
     }
     
     /*
-     * Populates the pages array
+     * Populates the listItems 2D ArrayList with all of the current tasks for each group.
      */
     public void generatePages(ArrayList<Group> groups) {
     	int i, j;
     	int x, y, w, h;
     	
     	//clear out the old pages arraylist
-    	pages.clear();
+    	listItems.clear();
     	
     	//add a page for every group
     	for (i = 0 ; i < groups.size() ; i++) {
-    		pages.add(new ArrayList<ListItem>());
+    		listItems.add(new ArrayList<ListItem>());
     		
     		//for every task in the current group, create a ListItem with the proper positioning
     		for (x = 40, y = 30, w = 300, h = 50, j = 0 ; j < groups.get(i).tasks.size() ; j++) {
-    			pages.get(i).add(new ListItem(x, y, w, h, groups.get(i), groups.get(i).tasks.get(j)));
+    			listItems.get(i).add(new ListItem(x, y, w, h, groups.get(i), groups.get(i).tasks.get(j)));
     			
     			//if placing the next task would go out of bounds (of the window), wrap to the next column
     			if (y + h + 10 + h > this.getHeight()) {
@@ -147,6 +152,104 @@ public class ListView extends JPanel implements MouseInputListener{
     }
     
     /*
+     * Opens up a JOptionPane with info about the given task and the option to edit it.
+     */
+    public void expandTaskInfo(ListItem li) {
+    	//create pop-up dialogue fields
+		JComboBox<String> groupBox = new JComboBox<String>();
+		for (int i = 0 ; i < parent.groups.size() ; i++)
+			groupBox.addItem(parent.groups.get(i).getName());
+		groupBox.setSelectedItem(li.myGroup.getName());
+		
+		JTextField nameField = new JTextField();
+		nameField.setText(li.myTask.getName());
+		
+		JComboBox<Integer> prioBox = new JComboBox<Integer>();
+		for (int i = 1 ; i <= 10 ; i++)
+			prioBox.addItem(i);
+		prioBox.setSelectedItem((Integer)li.myTask.getPriority());
+		
+		JTextField descField = new JTextField();
+		descField.setText(li.myTask.getDescription());
+		
+		DateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+	    JFormattedTextField dateField = new JFormattedTextField(format);
+	    dateField.setText(format.format(li.myTask.getDueDate()));
+		
+	    JFormattedTextField alarmField = new JFormattedTextField(format);
+		alarmField.setText(format.format(li.myTask.getAlarmDate()));
+		
+		//add components to JPanel for pop-up 
+		JPanel myPanel = new JPanel(new GridLayout(6, 1));
+		myPanel.add(new JLabel("Group:"));
+		myPanel.add(groupBox);
+		myPanel.add(new JLabel("Name:"));
+		myPanel.add(nameField);
+		myPanel.add(new JLabel("Priority:"));
+		myPanel.add(prioBox);
+		myPanel.add(new JLabel("Description:"));
+		myPanel.add(descField);
+		myPanel.add(new JLabel("Date:"));
+		myPanel.add(dateField);
+		myPanel.add(new JLabel("Alarm:"));
+		myPanel.add(alarmField);
+		
+		int result = JOptionPane.showConfirmDialog(null, myPanel, 
+				"Edit Task Info", JOptionPane.OK_CANCEL_OPTION);
+	    if (result == JOptionPane.OK_OPTION) {
+	    	while (true) {
+		    	//check if any of the fields were left blank
+		    	if (nameField.getText().equals("") || descField.getText().equals("") || dateField.getText().equals("") || alarmField.getText().equals("")) {
+		    		JOptionPane.showMessageDialog(null, "Please make sure all fields are filled out.", "ERROR", JOptionPane.OK_OPTION);
+		    		continue;
+		    	}
+		    	
+		    	//set new info if possible with given input
+				try {
+					Date dueDate = format.parse(dateField.getText());
+					Date alarmDate = format.parse(alarmField.getText());
+					
+					//set new task info
+					li.myTask.setName(nameField.getText());
+					li.myTask.setPriority((int)prioBox.getSelectedItem());
+					li.myTask.setDescription(descField.getText());
+					li.myTask.setDueDate(dueDate);
+					li.myTask.setAlarmDate(alarmDate);
+					
+					//switch groups if necessary
+					if (!li.myGroup.getName().equals(groupBox.getSelectedItem())) {
+						Group newGroup = null;
+						String newGroupName = (String)groupBox.getSelectedItem();
+						int i;
+						for (i = 0 ; i < parent.groups.size(); i++) {
+							if (parent.groups.get(i).getName().equals(newGroupName)) {
+								newGroup = parent.groups.get(i);
+								break;
+							}
+						}
+						
+						li.myGroup.removeTask(li.myTask);
+						listItems.get(currentPage).remove(li);
+						li.myGroup = newGroup;
+						li.myGroup.addTask(li.myTask);
+						listItems.get(i).add(li);
+						
+						//if groups changed re-generate group pages with new tasks  
+	      				generatePages(parent.groups);
+					} else {
+						//if groups weren't changed, just repaint with new info
+						repaint();
+					}
+      				
+      				break;
+				} catch (ParseException e) {
+					JOptionPane.showMessageDialog(null, "Invalid date format. Please try again.", "ERROR", JOptionPane.OK_OPTION);
+				}
+	    	}
+	    }
+    }
+    
+    /*
      * (non-Javadoc)
      * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
      */
@@ -155,7 +258,7 @@ public class ListView extends JPanel implements MouseInputListener{
 		//if the right button is clicked, move page right (if possible)
 		if (right.contains(e.getPoint())) {
 			System.out.println("Right button clicked");
-			if (currentPage < pages.size() - 1) {
+			if (currentPage < listItems.size() - 1) {
 				currentPage++;
 				repaint();
 			}
@@ -166,7 +269,16 @@ public class ListView extends JPanel implements MouseInputListener{
 				currentPage--;
 				repaint();
 			}
-		}
+		//if any of the tasks are clicked, call the expandTaskInfo() method to open up a JOptionPane for editing
+		} else {
+			for (int i = 0 ; i < listItems.get(currentPage).size() ; i++) {
+				if (listItems.get(currentPage).get(i).contains(e.getPoint())) {
+					expandTaskInfo(listItems.get(currentPage).get(i));
+					break;
+				}
+			}
+		}	
+		
 	}
 
 	@Override
