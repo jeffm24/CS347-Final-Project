@@ -22,9 +22,14 @@ public class TaskList extends JFrame implements ItemListener {
 	JMenuItem open, save, exit, impt, expt;		//"File menu items
 	JMenu addMenu;								//"Add" menu
 	JMenuItem addTask, addGroup;				//"Add" menu items
+	JMenu sortMenu;								//"Sort" menu
+	JMenuItem sortTasks, sortGroups;			//"Sort" menu items
 	
 	ArrayList<JPanel> views;					//ArrayList to hold the different views
 	int currentView;							//Index in views of the current view
+	
+	Sorting sorter;								//Sorter class for sorting the lists and groups
+	int currentSort;							//Current sort of the view
 				
 	JPanel cardPanel;							//CardLayout panel for switching between views
 	
@@ -57,15 +62,16 @@ public class TaskList extends JFrame implements ItemListener {
 		views.add(cv);
 		currentView = 0;
 		
+		sorter = new Sorting();
+		currentSort = 0;		
+		
 		//add all view panels to the cardlayout
 		cardPanel = new JPanel(new CardLayout());		
 		cardPanel.add(lv, "List View");
 		cardPanel.add(gv, "Grid View");	
 		cardPanel.add(cv, "Calendar View");
 		this.add(cardPanel);	
-		this.setContentPane(cardPanel);
-		
-		
+		this.setContentPane(cardPanel);		
 		
 		groups = new ArrayList<Group>();
 		
@@ -123,13 +129,29 @@ public class TaskList extends JFrame implements ItemListener {
 		gc.gridy = 0;
 		menuBar.add(addMenu, gc);
 		
+		//create sort menu
+		sortMenu = new JMenu("Sort");
+		sortTasks = new JMenuItem("Sort Tasks");
+		sortTasks.addActionListener(ma);
+		sortMenu.add(sortTasks);
+		sortGroups = new JMenuItem("Sort Groups");
+		sortGroups.addActionListener(ma);
+		sortMenu.add(sortGroups);
+		
+		//place sort menu
+		gc.weightx = 0.005;
+		gc.gridx = 2;
+		gc.gridy = 0;
+		menuBar.add(sortMenu, gc);
+		
+		//add combo box
 		String comboBoxItems[] = {"List View", "Grid View", "Calendar View"};
 		viewSwitcher = new JComboBox<String>(comboBoxItems);
 		viewSwitcher.setEditable(false);
 		viewSwitcher.addItemListener(this);
 		gc.anchor = GridBagConstraints.LINE_END;
 		gc.weightx = .99;
-		gc.gridx = 2;
+		gc.gridx = 3;
 		gc.gridy = 0;
 		menuBar.add(viewSwitcher, gc);
 		
@@ -142,6 +164,8 @@ public class TaskList extends JFrame implements ItemListener {
 	 * Does nothing and returns false otherwise.
 	 */
 	public boolean addTask() {
+		boolean valid = false;
+		
 		//if there are no groups, the user cannot add a task
 		if (groups.size() == 0) {
 			JOptionPane.showMessageDialog(null, "Please create a group first.", "ERROR", JOptionPane.OK_OPTION);
@@ -183,49 +207,54 @@ public class TaskList extends JFrame implements ItemListener {
 		myPanel.add(new JLabel("Alarm:"));
 		myPanel.add(alarmField);
 		
-		int result = JOptionPane.showConfirmDialog(null, myPanel, 
-				"Enter Task Info", JOptionPane.OK_CANCEL_OPTION);
-	    if (result == JOptionPane.OK_OPTION) {
-      		Task newTask = null;
-      		
-      		//check if any of the fields were left blank
-	    	if (nameField.getText().equals("") || descField.getText().equals("") || dateField.getText().equals("") || alarmField.getText().equals("")) {
-	    		JOptionPane.showMessageDialog(null, "Please make sure all fields are filled out.", "ERROR", JOptionPane.OK_OPTION);
-	    		return false;
-	    	}
-      		
-	    	//check for a group to add the task to with the same name as the given group
-			for (int i = 0 ; i < groups.size() ; i++) {
-      			if (groups.get(i).getName().equals(groupBox.getSelectedItem())) {
-      				//create new task if possible with given input
-					try {
-						String name = nameField.getText();
-	      				int priority = (int)prioBox.getSelectedItem();
-	      				String desc = descField.getText();
-						Date date = format.parse(dateField.getText());
-						Date alarm = format.parse(alarmField.getText());
-						
-						newTask = new Task(name, priority, desc, date, alarm);
-	      				groups.get(i).addTask(newTask);
-	      				
-	      				//re-generate pages for listView
-	      				lv.generatePages(groups);
-	      				
-	      				//TESTING
-	      				System.out.println("Created task: " + name + " in group: " + groupBox.getSelectedItem());
-	      				return true;
-					} catch (ParseException e) {
-						JOptionPane.showMessageDialog(null, "Invalid date format. Please try again.", "ERROR", JOptionPane.OK_OPTION);
-					}
-      			}
-      		} 		
-			
-			JOptionPane.showMessageDialog(null, "Could not find group. Please try again.", "ERROR", JOptionPane.OK_OPTION);
-      	} else if (result == JOptionPane.CANCEL_OPTION) {
-	    	return true;
-	    }	
-	    
-	    return false;
+		while (!valid) {
+			int result = JOptionPane.showConfirmDialog(null, myPanel, 
+					"Enter Task Info", JOptionPane.OK_CANCEL_OPTION);
+		    if (result == JOptionPane.OK_OPTION) {
+	      		Task newTask = null;
+	      		
+	      		//check if any of the fields were left blank
+		    	if (nameField.getText().equals("") || descField.getText().equals("") || dateField.getText().equals("") || alarmField.getText().equals("")) {
+		    		JOptionPane.showMessageDialog(null, "Please make sure all fields are filled out.", "ERROR", JOptionPane.OK_OPTION);
+		    		continue;
+		    	}
+	      		
+		    	//check for a group to add the task to with the same name as the given group
+				for (int i = 0 ; i < groups.size() ; i++) {
+	      			if (groups.get(i).getName().equals(groupBox.getSelectedItem())) {
+	      				//create new task if possible with given input
+						try {
+							String name = nameField.getText();
+		      				int priority = (int)prioBox.getSelectedItem();
+		      				String desc = descField.getText();
+							Date date = format.parse(dateField.getText());
+							Date alarm = format.parse(alarmField.getText());
+							
+							newTask = new Task(name, priority, desc, date, alarm);
+		      				groups.get(i).addTask(newTask);
+		      				
+		      				//re-generate pages for listView
+		      				lv.generatePages(groups);
+		      				
+		      				//TESTING
+		      				System.out.println("Created task: " + name + " in group: " + groupBox.getSelectedItem());
+		      				valid = true;
+		      				continue;
+						} catch (ParseException e) {
+							JOptionPane.showMessageDialog(null, "Invalid date format. Please try again.", "ERROR", JOptionPane.OK_OPTION);
+						}
+	      			}
+	      		} 		
+				
+				JOptionPane.showMessageDialog(null, "Could not find group. Please try again.", "ERROR", JOptionPane.OK_OPTION);
+	      	} else if (result == JOptionPane.CANCEL_OPTION) {
+		    	valid = true;
+		    	continue;
+		    }	
+		    
+		    continue;
+		}
+		return true;
 	}
 	
 	/*
@@ -234,8 +263,9 @@ public class TaskList extends JFrame implements ItemListener {
 	 * 		not already exist.
 	 * Does nothing and returns false otherwise. 
 	 */
-	public boolean addGroup() {
+	public void addGroup() {
 		boolean groupExists = false;
+		boolean valid = false;
 		
 		//create pop-up dialogue fields
 		JTextField nameField = new JTextField();
@@ -253,45 +283,49 @@ public class TaskList extends JFrame implements ItemListener {
 		myPanel.add(new JLabel("Description:"));
 		myPanel.add(descField);
 		
-		int result = JOptionPane.showConfirmDialog(null, myPanel, 
-				"Enter Group Info", JOptionPane.OK_CANCEL_OPTION);
-	    if (result == JOptionPane.OK_OPTION) {
-	    	Group newGroup = null;
-	    	
-	    	//check if any of the fields were left blank
-	    	if (nameField.getText().equals("") || descField.getText().equals("")) {
-	    		JOptionPane.showMessageDialog(null, "Please make sure all fields are filled out.", "ERROR", JOptionPane.OK_OPTION);
-	    		return false;
-	    	}
-	    	
-	    	//check whether or not a group with the same name already exists
-	    	String gName = nameField.getText();
-	    	for (int i = 0 ; i < groups.size() ; i++) {
-	    		if (groups.get(i).getName().equals(gName)) {
-	    			groupExists = true;
-	    			JOptionPane.showMessageDialog(null, "Group already exists.", "ERROR", JOptionPane.OK_OPTION);
-	    			return false;
-	    		}
-	    	}
-	    	
-	    	//if the group does not exist, add it to the groups array
-	    	if (!groupExists) {
-	    		newGroup = new Group(nameField.getText(), (Integer)prioBox.getSelectedItem(), descField.getText());
-	    		groups.add(newGroup);
-	    		
-	    		//re-generate pages for listView
-	    		lv.generatePages(groups);
-	    		
-	    		//TESTING
-	    		System.out.println("Group: " + nameField.getText() + " created successfully.");
-	    		return true;
-	    	}
-	    } else if (result == JOptionPane.CANCEL_OPTION) {
-	    	return true;
-	    }
-	    
-	    JOptionPane.showMessageDialog(null, "Could not create group. Please try again.", "ERROR", JOptionPane.OK_OPTION);
-	    return false;
+		while (!valid) {
+			int result = JOptionPane.showConfirmDialog(null, myPanel, 
+					"Enter Group Info", JOptionPane.OK_CANCEL_OPTION);
+		    if (result == JOptionPane.OK_OPTION) {
+		    	Group newGroup = null;
+		    	
+		    	//check if any of the fields were left blank
+		    	if (nameField.getText().equals("") || descField.getText().equals("")) {
+		    		JOptionPane.showMessageDialog(null, "Please make sure all fields are filled out.", "ERROR", JOptionPane.OK_OPTION);
+		    		continue;
+		    	}
+		    	
+		    	//check whether or not a group with the same name already exists
+		    	String gName = nameField.getText();
+		    	for (int i = 0 ; i < groups.size() ; i++) {
+		    		if (groups.get(i).getName().equals(gName)) {
+		    			groupExists = true;
+		    			JOptionPane.showMessageDialog(null, "Group already exists.", "ERROR", JOptionPane.OK_OPTION);
+		    			continue;
+		    		}
+		    	}
+		    	
+		    	//if the group does not exist, add it to the groups array
+		    	if (!groupExists) {
+		    		newGroup = new Group(nameField.getText(), (Integer)prioBox.getSelectedItem(), descField.getText());
+		    		groups.add(newGroup);
+		    		
+		    		//re-generate pages for listView
+		    		lv.generatePages(groups);
+		    		
+		    		//TESTING
+		    		System.out.println("Group: " + nameField.getText() + " created successfully.");
+		    		valid = true;
+		    		continue;
+		    	}
+		    } else if (result == JOptionPane.CANCEL_OPTION) {
+		    	valid = true;
+		    	continue;
+		    }
+		    
+		    JOptionPane.showMessageDialog(null, "Could not create group. Please try again.", "ERROR", JOptionPane.OK_OPTION);
+		    continue;
+		}
 	}
 	
 	/*
@@ -321,12 +355,9 @@ public class TaskList extends JFrame implements ItemListener {
 		System.out.println("Changed currentView to " + currentView);
 	}
 	
-	public void sort(){
-		for(int i = 0; i < groups.size(); i++)
-			sortTasks(groups.get(i).tasks, 0);
-		lv.generatePages(groups);
-	}
-	
+	/*
+	 * 
+	 */
 	public void save(){
 		String fileName = "../save.txt";
 		PrintWriter outputStream = null;
@@ -358,10 +389,106 @@ public class TaskList extends JFrame implements ItemListener {
 		outputStream.close();
 	}
 	
-	
-	public void sortTasks(ArrayList<Task> t, int type){
-		Sorting sorter = new Sorting();
+	/*
+	 * 
+	 * taskOrGroup - true to sort tasks, false to sort groups
+	 * sortType - type of sort to implement
+	 */
+	public void sort(boolean taskOrGroup){
+		int sortType = -1;
+		boolean valid = false;
 		
+		//pop-up task sort dialogue
+		if (taskOrGroup) {			
+			//create pop-up button options
+			ButtonGroup bg = new ButtonGroup();
+			JRadioButton byName = new JRadioButton("Sort by name");
+			JRadioButton byPrio = new JRadioButton("Sort by priority");
+			JRadioButton byDueDate = new JRadioButton("Sort by due date");
+			bg.add(byName);
+			bg.add(byPrio);
+			bg.add(byDueDate);
+			
+			//add components to JPanel for pop-up 
+			JPanel myPanel = new JPanel(new GridLayout(3, 1));
+			myPanel.add(byName);
+			myPanel.add(byPrio);
+			myPanel.add(byDueDate);
+			
+			while (!valid) {
+				int result = JOptionPane.showConfirmDialog(null, myPanel, 
+						"Enter Group Info", JOptionPane.OK_CANCEL_OPTION);
+			    if (result == JOptionPane.OK_OPTION) {
+			    	//get sort type
+			    	if (byName.isSelected()) {
+			    		sortType = 0;
+			    	} else if (byPrio.isSelected()) {
+			    		sortType = 1;
+			    	} else if (byDueDate.isSelected()) {
+			    		sortType = 2;
+			    	}
+			    	
+			    	//check if nothing is selected
+			    	if (sortType == -1) 
+			    		continue;
+			    
+			    	//perform the sort
+			    	for(int i = 0; i < groups.size(); i++)
+						sortTasks(groups.get(i).tasks, sortType);
+					lv.generatePages(groups);
+					
+					valid = true;
+			    } else if (result == JOptionPane.CANCEL_OPTION) {
+			    	valid = true;
+			    }
+			}
+		} else {
+			//create pop-up button options
+			ButtonGroup bg = new ButtonGroup();
+			JRadioButton byName = new JRadioButton("Sort by name");
+			JRadioButton byPrio = new JRadioButton("Sort by priority");
+			bg.add(byName);
+			bg.add(byPrio);
+			
+			//add components to JPanel for pop-up 
+			JPanel myPanel = new JPanel(new GridLayout(2, 1));
+			myPanel.add(byName);
+			myPanel.add(byPrio);
+			
+			while (!valid) {
+				int result = JOptionPane.showConfirmDialog(null, myPanel, 
+						"Enter Group Info", JOptionPane.OK_CANCEL_OPTION);
+			    if (result == JOptionPane.OK_OPTION) {
+			    	//get sort type
+			    	if (byName.isSelected()) {
+			    		sortType = 0;
+			    	} else if (byPrio.isSelected()) {
+			    		sortType = 1;
+			    	} 
+			    	
+			    	//check if nothing is selected
+			    	if (sortType == -1) 
+			    		continue;
+			    
+			    	//perform the sort
+			    	/*
+			    	 * 
+			    	 */
+			    	
+					valid = true;
+			    } else if (result == JOptionPane.CANCEL_OPTION) {
+			    	valid = true;
+			    }
+			}
+		}
+		
+		
+	}	
+	
+	/*
+	 * 
+	 */
+	public void sortTasks(ArrayList<Task> t, int type){		
 		switch(type){
 		
 		case 0:
@@ -409,13 +536,19 @@ public class TaskList extends JFrame implements ItemListener {
 			} 
 			//if "Add Task" is clicked under "Add"
 			else if (e.getSource().equals(addTask)) {
-				while(!addTask())
-					;
+				addTask();
 			} 
 			//if "Add Groups" is clicked under "Add"
 			else if (e.getSource().equals(addGroup)) {
-				while(!addGroup())
-					;
+				addGroup();
+			}
+			//if "Sort Tasks" is clicked under "Sort"
+			else if (e.getSource().equals(sortTasks)) {
+				sort(true);
+			}
+			//if "Sort Groups" is clicked under "Sort"
+			else if (e.getSource().equals(sortGroups)) {
+				sort(false);
 			}
 		}
 	}

@@ -270,7 +270,7 @@ public class ListView extends JPanel implements MouseInputListener{
 				repaint();
 			}
 		//if any of the tasks are clicked, call the expandTaskInfo() method to open up a JOptionPane for editing
-		} else {
+		} else if (listItems == null) {
 			for (int i = 0 ; i < listItems.get(currentPage).size() ; i++) {
 				if (listItems.get(currentPage).get(i).contains(e.getPoint())) {
 					expandTaskInfo(listItems.get(currentPage).get(i));

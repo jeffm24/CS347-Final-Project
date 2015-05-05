@@ -11,3 +11,8 @@
 /View.class
 /ListItem.class
 /Page.class
+/Sorting$TaskAlarmDateComparator.class
+/Sorting$TaskDueDateComparator.class
+/Sorting$TaskNameComparator.class
+/Sorting$TaskPriorityComparator.class
+/Sorting.class
