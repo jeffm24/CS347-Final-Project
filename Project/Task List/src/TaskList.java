@@ -29,7 +29,8 @@ public class TaskList extends JFrame implements ItemListener {
 	int currentView;							//Index in views of the current view
 	
 	Sorting sorter;								//Sorter class for sorting the lists and groups
-	int currentSort;							//Current sort of the view
+	int currentTaskSort;						//Current task sort of the view
+	int currentGroupSort;						//Current group sort of the view
 				
 	JPanel cardPanel;							//CardLayout panel for switching between views
 	
@@ -63,7 +64,8 @@ public class TaskList extends JFrame implements ItemListener {
 		currentView = 0;
 		
 		sorter = new Sorting();
-		currentSort = 0;		
+		currentTaskSort = 0;		
+		currentGroupSort = 0;
 		
 		//add all view panels to the cardlayout
 		cardPanel = new JPanel(new CardLayout());		
@@ -163,98 +165,96 @@ public class TaskList extends JFrame implements ItemListener {
 	 * Adds the task and returns true if all fields were entered correctly.
 	 * Does nothing and returns false otherwise.
 	 */
-	public boolean addTask() {
+	public void addTask() {
 		boolean valid = false;
 		
 		//if there are no groups, the user cannot add a task
-		if (groups.size() == 0) {
+		if (groups.size() != 0) {
+			//create pop-up dialogue fields
+			JComboBox<String> groupBox = new JComboBox<String>();
+			for (int i = 0 ; i < groups.size() ; i++)
+				groupBox.addItem(groups.get(i).getName());
+			
+			JTextField nameField = new JTextField();
+			
+			JComboBox<Integer> prioBox = new JComboBox<Integer>();
+			for (int i = 1 ; i <= 10 ; i++)
+				prioBox.addItem(i);
+			
+			JTextField descField = new JTextField();
+			
+			DateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+		    JFormattedTextField dateField = new JFormattedTextField(format);
+		    dateField.setText("yyyy/MM/dd");
+			
+		    JFormattedTextField alarmField = new JFormattedTextField(format);
+			alarmField.setText("yyyy/MM/dd");
+			
+			//add components to JPanel for pop-up 
+			JPanel myPanel = new JPanel(new GridLayout(6, 1));
+			myPanel.add(new JLabel("Group:"));
+			myPanel.add(groupBox);
+			myPanel.add(new JLabel("Name:"));
+			myPanel.add(nameField);
+			myPanel.add(new JLabel("Priority:"));
+			myPanel.add(prioBox);
+			myPanel.add(new JLabel("Description:"));
+			myPanel.add(descField);
+			myPanel.add(new JLabel("Date:"));
+			myPanel.add(dateField);
+			myPanel.add(new JLabel("Alarm:"));
+			myPanel.add(alarmField);
+			
+			while (!valid) {
+				int result = JOptionPane.showConfirmDialog(null, myPanel, 
+						"Enter Task Info", JOptionPane.OK_CANCEL_OPTION);
+			    if (result == JOptionPane.OK_OPTION) {
+		      		Task newTask = null;
+		      		
+		      		//check if any of the fields were left blank
+			    	if (nameField.getText().equals("") || descField.getText().equals("") || dateField.getText().equals("") || alarmField.getText().equals("")) {
+			    		JOptionPane.showMessageDialog(null, "Please make sure all fields are filled out.", "ERROR", JOptionPane.OK_OPTION);
+			    		continue;
+			    	}
+		      		
+			    	//check for a group to add the task to with the same name as the given group
+					for (int i = 0 ; i < groups.size() ; i++) {
+		      			if (groups.get(i).getName().equals(groupBox.getSelectedItem())) {
+		      				//create new task if possible with given input
+							try {
+								String name = nameField.getText();
+			      				int priority = (int)prioBox.getSelectedItem();
+			      				String desc = descField.getText();
+								Date date = format.parse(dateField.getText());
+								Date alarm = format.parse(alarmField.getText());
+								
+								newTask = new Task(name, priority, desc, date, alarm);
+			      				groups.get(i).addTask(newTask);
+			      				
+			      				//re-generate pages for listView
+			      				lv.generatePages(groups);
+			      				
+			      				//TESTING
+			      				System.out.println("Created task: " + name + " in group: " + groupBox.getSelectedItem());
+			      				valid = true;
+			      				continue;
+							} catch (ParseException e) {
+								JOptionPane.showMessageDialog(null, "Invalid date format. Please try again.", "ERROR", JOptionPane.OK_OPTION);
+							}
+		      			}
+		      		} 		
+					
+					JOptionPane.showMessageDialog(null, "Could not find group. Please try again.", "ERROR", JOptionPane.OK_OPTION);
+		      	} else if (result == JOptionPane.CANCEL_OPTION) {
+			    	valid = true;
+			    	continue;
+			    }	
+			    
+			    continue;
+			}
+		} else {
 			JOptionPane.showMessageDialog(null, "Please create a group first.", "ERROR", JOptionPane.OK_OPTION);
-			return true;
 		}
-		
-		//create pop-up dialogue fields
-		JComboBox<String> groupBox = new JComboBox<String>();
-		for (int i = 0 ; i < groups.size() ; i++)
-			groupBox.addItem(groups.get(i).getName());
-		
-		JTextField nameField = new JTextField();
-		
-		JComboBox<Integer> prioBox = new JComboBox<Integer>();
-		for (int i = 1 ; i <= 10 ; i++)
-			prioBox.addItem(i);
-		
-		JTextField descField = new JTextField();
-		
-		DateFormat format = new SimpleDateFormat("yyyy/MM/dd");
-	    JFormattedTextField dateField = new JFormattedTextField(format);
-	    dateField.setText("yyyy/MM/dd");
-		
-	    JFormattedTextField alarmField = new JFormattedTextField(format);
-		alarmField.setText("yyyy/MM/dd");
-		
-		//add components to JPanel for pop-up 
-		JPanel myPanel = new JPanel(new GridLayout(6, 1));
-		myPanel.add(new JLabel("Group:"));
-		myPanel.add(groupBox);
-		myPanel.add(new JLabel("Name:"));
-		myPanel.add(nameField);
-		myPanel.add(new JLabel("Priority:"));
-		myPanel.add(prioBox);
-		myPanel.add(new JLabel("Description:"));
-		myPanel.add(descField);
-		myPanel.add(new JLabel("Date:"));
-		myPanel.add(dateField);
-		myPanel.add(new JLabel("Alarm:"));
-		myPanel.add(alarmField);
-		
-		while (!valid) {
-			int result = JOptionPane.showConfirmDialog(null, myPanel, 
-					"Enter Task Info", JOptionPane.OK_CANCEL_OPTION);
-		    if (result == JOptionPane.OK_OPTION) {
-	      		Task newTask = null;
-	      		
-	      		//check if any of the fields were left blank
-		    	if (nameField.getText().equals("") || descField.getText().equals("") || dateField.getText().equals("") || alarmField.getText().equals("")) {
-		    		JOptionPane.showMessageDialog(null, "Please make sure all fields are filled out.", "ERROR", JOptionPane.OK_OPTION);
-		    		continue;
-		    	}
-	      		
-		    	//check for a group to add the task to with the same name as the given group
-				for (int i = 0 ; i < groups.size() ; i++) {
-	      			if (groups.get(i).getName().equals(groupBox.getSelectedItem())) {
-	      				//create new task if possible with given input
-						try {
-							String name = nameField.getText();
-		      				int priority = (int)prioBox.getSelectedItem();
-		      				String desc = descField.getText();
-							Date date = format.parse(dateField.getText());
-							Date alarm = format.parse(alarmField.getText());
-							
-							newTask = new Task(name, priority, desc, date, alarm);
-		      				groups.get(i).addTask(newTask);
-		      				
-		      				//re-generate pages for listView
-		      				lv.generatePages(groups);
-		      				
-		      				//TESTING
-		      				System.out.println("Created task: " + name + " in group: " + groupBox.getSelectedItem());
-		      				valid = true;
-		      				continue;
-						} catch (ParseException e) {
-							JOptionPane.showMessageDialog(null, "Invalid date format. Please try again.", "ERROR", JOptionPane.OK_OPTION);
-						}
-	      			}
-	      		} 		
-				
-				JOptionPane.showMessageDialog(null, "Could not find group. Please try again.", "ERROR", JOptionPane.OK_OPTION);
-	      	} else if (result == JOptionPane.CANCEL_OPTION) {
-		    	valid = true;
-		    	continue;
-		    }	
-		    
-		    continue;
-		}
-		return true;
 	}
 	
 	/*
