@@ -36,5 +36,23 @@ public class Sorting {
 		}
 
 	}
+	public class GroupNameComparator implements Comparator<Group> {
+
+		@Override
+		public int compare(Group g1, Group g2) {
+			return g1.getName().compareTo(g2.getName());
+		}
+
+	}
+
+	public class GroupPriorityComparator implements Comparator<Group> {
+
+		@Override
+		public int compare(Group g1, Group g2) {
+			return g1.getPriority() - g2.getPriority();
+		}
+
+	}
+	
 
 }

@@ -102,9 +102,9 @@ public class TaskList extends JFrame implements ItemListener {
 		impt = new JMenuItem("Import");
 		impt.addActionListener(ma);
 		fileMenu.add(impt);
-		expt = new JMenuItem("Export");
-		expt.addActionListener(ma);
-		fileMenu.add(expt);
+		//expt = new JMenuItem("Export");
+		//expt.addActionListener(ma);
+		//fileMenu.add(expt);
 		exit = new JMenuItem("Exit");
 		exit.addActionListener(ma);
 		fileMenu.add(exit);
@@ -474,7 +474,10 @@ public class TaskList extends JFrame implements ItemListener {
 			    	/*
 			    	 * 
 			    	 */
-			    	
+			    
+			    	sortGroups(sortType);
+					lv.generatePages(groups);
+					
 					valid = true;
 			    } else if (result == JOptionPane.CANCEL_OPTION) {
 			    	valid = true;
@@ -485,6 +488,18 @@ public class TaskList extends JFrame implements ItemListener {
 		
 	}	
 	
+	public void sortGroups(int type){
+		switch(type){
+		
+		case 0:
+			Collections.sort(groups, sorter.new GroupNameComparator());
+			break;
+		case 1:
+			Collections.sort(groups, sorter.new GroupPriorityComparator());
+			break;
+		
+		}
+	}
 	/*
 	 * 
 	 */
