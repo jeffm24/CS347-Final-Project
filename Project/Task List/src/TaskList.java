@@ -1,9 +1,12 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 
 import javax.swing.*;
@@ -22,7 +25,9 @@ public class TaskList extends JFrame implements ItemListener {
 	
 	ArrayList<JPanel> views;					//ArrayList to hold the different views
 	int currentView;							//Index in views of the current view
+				
 	JPanel cardPanel;							//CardLayout panel for switching between views
+	
 	JComboBox<String> viewSwitcher;				//JComboBox for initiating view switches
 	GridBagConstraints c;						//Constraints for the menuBar GridBagLayout
 	
@@ -59,6 +64,8 @@ public class TaskList extends JFrame implements ItemListener {
 		cardPanel.add(cv, "Calendar View");
 		this.add(cardPanel);	
 		this.setContentPane(cardPanel);
+		
+		
 		
 		groups = new ArrayList<Group>();
 		
@@ -314,6 +321,67 @@ public class TaskList extends JFrame implements ItemListener {
 		System.out.println("Changed currentView to " + currentView);
 	}
 	
+	public void sort(){
+		for(int i = 0; i < groups.size(); i++)
+			sortTasks(groups.get(i).tasks, 0);
+		lv.generatePages(groups);
+	}
+	
+	public void save(){
+		String fileName = "../save.txt";
+		PrintWriter outputStream = null;
+		
+		try {
+			
+			outputStream = new PrintWriter(fileName); // write
+			
+		} catch(FileNotFoundException e) {
+			System.out.println("Error opening the file " + fileName);
+			System.exit(0);
+		}
+		for(int i = 0; i < groups.size(); i++){
+			outputStream.println("Group"+ i + ":\n");
+			outputStream.println("Name- "+ groups.get(i).getName());
+			outputStream.println("Priority- "+ groups.get(i).getPriority());
+			outputStream.println("Description- "+ groups.get(i).getDescription());
+			outputStream.println("TASKS:\n");
+			for(int j = 0; j < groups.get(i).tasks.size(); j++){
+				outputStream.println("Task" + j + ":\n");
+				outputStream.println("Name- "+ groups.get(i).tasks.get(j).getName());
+				outputStream.println("Priority- "+ groups.get(i).tasks.get(j).getPriority());
+				outputStream.println("Description- "+ groups.get(i).tasks.get(j).getDescription());
+				outputStream.println("Due Date- "+ groups.get(i).tasks.get(j).getDueDate());
+				outputStream.println(",");
+			}
+			outputStream.println(";");
+		}
+		outputStream.close();
+	}
+	
+	
+	public void sortTasks(ArrayList<Task> t, int type){
+		Sorting sorter = new Sorting();
+		
+		switch(type){
+		
+		case 0:
+			Collections.sort(t, sorter.new TaskNameComparator());
+			break;
+		case 1:
+			Collections.sort(t, sorter.new TaskPriorityComparator());
+			break;
+		case 2:
+			Collections.sort(t, sorter.new TaskDueDateComparator());
+			break;
+		case 3:
+			Collections.sort(t, sorter.new TaskAlarmDateComparator());
+			break;
+		
+		}
+		
+		//t.sort(null);
+	}
+	
 	/*
 	 * Action Listener to get menu item clicks and act on them.
 	 */
@@ -325,7 +393,7 @@ public class TaskList extends JFrame implements ItemListener {
 			} 
 			//if "Save" is clicked under "File"
 			else if (e.getSource().equals(save)) {
-				System.out.println("save");
+				save();
 			} 
 			//if "Import" is clicked under "File"
 			else if (e.getSource().equals(impt)) {
