@@ -243,9 +243,7 @@ public class TaskList extends JFrame implements ItemListener {
 							}
 		      			}
 		      		} 		
-					
-					JOptionPane.showMessageDialog(null, "Could not find group. Please try again.", "ERROR", JOptionPane.OK_OPTION);
-		      	} else if (result == JOptionPane.CANCEL_OPTION) {
+				} else if (result == JOptionPane.CANCEL_OPTION) {
 			    	valid = true;
 			    	continue;
 			    }	

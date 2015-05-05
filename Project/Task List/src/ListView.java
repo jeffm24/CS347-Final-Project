@@ -13,6 +13,7 @@ import java.util.Date;
 public class ListView extends JPanel implements MouseInputListener{
 	
 	Rectangle2D.Double right, left;
+	String pageTitle;
 	ArrayList<ArrayList<ListItem>> listItems;
 	TaskList parent;
 	int currentPage;
@@ -53,7 +54,6 @@ public class ListView extends JPanel implements MouseInputListener{
 
         //Draw Current Group name (if there is one)
         g2.setFont(new Font("Ariel", Font.BOLD, 18));
-        String pageTitle;
         if (listItems.size() == 0) {
         	pageTitle = "No Groups to Show";
         } else {
@@ -135,8 +135,11 @@ public class ListView extends JPanel implements MouseInputListener{
     	for (i = 0 ; i < groups.size() ; i++) {
     		listItems.add(new ArrayList<ListItem>());
     		
+    		w = 300 / ((groups.get(i).tasks.size() / 30) + 1);
+    		h = 50  / ((groups.get(i).tasks.size() / 30) + 1);
+    		
     		//for every task in the current group, create a ListItem with the proper positioning
-    		for (x = 40, y = 30, w = 300, h = 50, j = 0 ; j < groups.get(i).tasks.size() ; j++) {
+    		for (x = 40, y = 30, j = 0 ; j < groups.get(i).tasks.size() ; j++) {
     			listItems.get(i).add(new ListItem(x, y, w, h, groups.get(i), groups.get(i).tasks.get(j)));
     			
     			//if placing the next task would go out of bounds (of the window), wrap to the next column
@@ -270,15 +273,14 @@ public class ListView extends JPanel implements MouseInputListener{
 				repaint();
 			}
 		//if any of the tasks are clicked, call the expandTaskInfo() method to open up a JOptionPane for editing
-		} else if (listItems == null) {
+		} else if (listItems != null) {
 			for (int i = 0 ; i < listItems.get(currentPage).size() ; i++) {
 				if (listItems.get(currentPage).get(i).contains(e.getPoint())) {
 					expandTaskInfo(listItems.get(currentPage).get(i));
 					break;
 				}
 			}
-		}	
-		
+		} 		
 	}
 
 	@Override
