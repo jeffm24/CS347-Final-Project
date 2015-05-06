@@ -2,6 +2,10 @@ import java.awt.geom.Rectangle2D;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.swing.JOptionPane;
 
 /*
  * Graphical representation of a Task for ListView and GridView.
@@ -14,7 +18,7 @@ public class ListItem extends Rectangle2D.Double{
 	public ListItem (double x, double y, double w, double h, Group g, Task t) {
 		super(x, y, w, h);
 		myGroup = g;
-		myTask = t;
+		myTask = t;	
 	}
 	
 	/*

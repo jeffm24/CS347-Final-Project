@@ -2,14 +2,15 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.JOptionPane;
+
 public class Task {
 	private String name;
 	private int priority;
 	private String description;
 	private Date dueDate;
 	private Date alarmDate;
-	private Timer t;
-	private TimerTask alarm;
+	private Timer timer;
 	
 	public Task(){
 		name = "";
@@ -17,8 +18,7 @@ public class Task {
 		description = "";
 		dueDate = new Date();
 		alarmDate = new Date();
-		t = new Timer();
-		alarm = null;
+		timer = new Timer();
 	}
 	
 	public Task(String n, int p, String d, Date due, Date a){
@@ -27,8 +27,8 @@ public class Task {
 		description = d;
 		dueDate = due;
 		alarmDate = a;
-		//t = tim;
-		//alarm = task;
+		timer = new Timer();
+		timer.schedule(new RemindTask(), alarmDate);
 	}
 	
 	public String getName() {
@@ -60,17 +60,17 @@ public class Task {
 	}
 	public void setAlarmDate(Date alarmDate) {
 		this.alarmDate = alarmDate;
+		timer = new Timer();
+		timer.schedule(new RemindTask(), alarmDate);
 	}
-	public Timer getT() {
-		return t;
-	}
-	public void setT(Timer t) {
-		this.t = t;
-	}
-	public TimerTask getAlarm() {
-		return alarm;
-	}
-	public void setAlarm(TimerTask alarm) {
-		this.alarm = alarm;
+	
+	//class for running a reminder notification when the timer goes off
+	private class RemindTask extends TimerTask {
+		
+		public void run() {
+			JOptionPane.showMessageDialog(null, name + " is due " + dueDate, "ALARM", JOptionPane.OK_OPTION);			
+			timer.cancel();
+		}
+		
 	}
 }

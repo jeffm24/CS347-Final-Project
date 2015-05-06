@@ -18,3 +18,5 @@
 /Sorting.class
 /Sorting$GroupNameComparator.class
 /Sorting$GroupPriorityComparator.class
+/ListItem$RemindTask.class
+/Task$RemindTask.class
