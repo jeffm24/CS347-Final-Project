@@ -82,6 +82,8 @@ public class TaskList extends JFrame implements ItemListener {
 
 		this.pack();
 		this.setVisible(true);
+		
+		importFile("../save.txt");
 	}
 
 	/*
