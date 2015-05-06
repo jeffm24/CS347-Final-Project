@@ -16,3 +16,5 @@
 /Sorting$TaskNameComparator.class
 /Sorting$TaskPriorityComparator.class
 /Sorting.class
+/Sorting$GroupNameComparator.class
+/Sorting$GroupPriorityComparator.class
