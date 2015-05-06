@@ -433,13 +433,17 @@ public class TaskList extends JFrame implements ItemListener {
 								.substring(10)));
 						t.setDescription(inputStream.readLine().substring(13));
 						Date dueDate = null;
+						Date alarmDate = null;
 						try {
 							dueDate = format.parse(inputStream.readLine()
 									.substring(10));
+							alarmDate = format.parse(inputStream.readLine()
+									.substring(12));
 						} catch (ParseException e) {
 
 						}
 						t.setDueDate(dueDate);
+						t.setAlarmDate(alarmDate);
 						// System.out.println("SKIP -->" +
 						// inputStream.readLine());
 						// System.out.println("SKIP -->"
@@ -504,6 +508,10 @@ public class TaskList extends JFrame implements ItemListener {
 						.println("Due Date- "
 								+ format.format(groups.get(i).tasks.get(j)
 										.getDueDate()));
+				outputStream
+				.println("Alarm Date- "
+						+ format.format(groups.get(i).tasks.get(j)
+								.getAlarmDate()));
 
 			}
 			outputStream.println(";");
