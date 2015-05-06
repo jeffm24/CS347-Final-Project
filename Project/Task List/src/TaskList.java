@@ -1,6 +1,10 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -8,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Scanner;
 
 import javax.swing.*;
 
@@ -19,7 +24,7 @@ public class TaskList extends JFrame implements ItemListener {
 	
 	JMenuBar menuBar;							//main menu bar
 	JMenu fileMenu;								//"File" menu
-	JMenuItem open, save, exit, impt, expt;		//"File menu items
+	JMenuItem open, save, exit, impt;		//"File menu items
 	JMenu addMenu;								//"Add" menu
 	JMenuItem addTask, addGroup;				//"Add" menu items
 	JMenu sortMenu;								//"Sort" menu
@@ -48,7 +53,7 @@ public class TaskList extends JFrame implements ItemListener {
 		this.setSize(1000, 650);
 		this.setMinimumSize(new Dimension(1000, 650));
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setResizable(false);
+		//this.setResizable(false);
 		
 		//initialize the menu bar
 		initMenuBar();	
@@ -102,9 +107,6 @@ public class TaskList extends JFrame implements ItemListener {
 		impt = new JMenuItem("Import");
 		impt.addActionListener(ma);
 		fileMenu.add(impt);
-		//expt = new JMenuItem("Export");
-		//expt.addActionListener(ma);
-		//fileMenu.add(expt);
 		exit = new JMenuItem("Exit");
 		exit.addActionListener(ma);
 		fileMenu.add(exit);
@@ -348,57 +350,131 @@ public class TaskList extends JFrame implements ItemListener {
 		
 		CardLayout cl = (CardLayout)(cardPanel.getLayout());
 	    cl.show(cardPanel, (String)e.getItem());
-	    
-	    //TESTING
-		System.out.println("Changed currentView to " + currentView);
 	}
 	
+	public void importFile() {
+		Scanner cin = new Scanner(System.in);
+		System.out.println("Enter File Name");
+		String path = cin.nextLine();
+		boolean newGroup = true;
+		String line = "";
+		String linearr[];
+		ArrayList<Group> temp = new ArrayList<Group>();
+		Group g;
+		Task t;
+
+		final File file = new File(path);
+
+		BufferedReader inputStream = null;
+
+		try {
+			inputStream = new BufferedReader(new FileReader(file));
+
+			while ((line = inputStream.readLine()) != null) {
+				g = new Group();
+				g.setName(inputStream.readLine().substring(6));
+				g.setPriority(Integer.parseInt(inputStream.readLine()
+						.substring(10)));
+				g.setDescription(inputStream.readLine().substring(13));
+				//System.out.println("1. " + inputStream.readLine());
+				//System.out.println("2. " + inputStream.readLine());
+				//System.out.println("3. " + inputStream.readLine());
+				
+				//System.out.println("SKIP -->" + inputStream.readLine());
+				//line = inputStream.readLine();
+				//System.out.println(line);
+				inputStream.readLine();
+				inputStream.readLine();
+				while (true) {
+					
+					line = inputStream.readLine();
+					//System.out.println("CHECK THIS -->" +line);
+					if (line.compareTo(";") != 0) {
+						//System.out.println("Entering tasks");
+						
+						t = new Task();
+						//System.out.println("1. " + inputStream.readLine());
+						//System.out.println("2. " + inputStream.readLine());
+						//System.out.println("3. " + inputStream.readLine());
+						t.setName(inputStream.readLine().substring(6));
+						t.setPriority(Integer.parseInt(inputStream.readLine().substring(10)));
+						t.setDescription(inputStream.readLine().substring(13));
+						//System.out.println("SKIP -->" + inputStream.readLine());
+						//System.out.println("SKIP -->" +inputStream.readLine());
+						//inputStream.readLine();
+						inputStream.readLine();
+						g.addTask(t);
+					}
+					else
+						break;
+				}
+
+				temp.add(g);
+				//inputStream.readLine();
+			}
+			groups = temp;
+			inputStream.close();
+			lv.generatePages(groups);
+
+		}
+
+		catch (IOException e) {
+			System.out.println("Error loading location");
+			System.exit(0);
+		}
+
+	}
+
 	/*
 	 * 
 	 */
-	public void save(){
+	public void save() {
 		String fileName = "../save.txt";
 		PrintWriter outputStream = null;
-		
+
 		try {
-			
+
 			outputStream = new PrintWriter(fileName); // write
-			
-		} catch(FileNotFoundException e) {
+
+		} catch (FileNotFoundException e) {
 			System.out.println("Error opening the file " + fileName);
 			System.exit(0);
 		}
-		for(int i = 0; i < groups.size(); i++){
-			outputStream.println("Group"+ i + ":\n");
-			outputStream.println("Name- "+ groups.get(i).getName());
-			outputStream.println("Priority- "+ groups.get(i).getPriority());
-			outputStream.println("Description- "+ groups.get(i).getDescription());
+		for (int i = 0; i < groups.size(); i++) {
+			outputStream.println("Group" + i);
+			outputStream.println("Name- " + groups.get(i).getName());
+			outputStream.println("Priority- " + groups.get(i).getPriority());
+			outputStream.println("Description- "
+					+ groups.get(i).getDescription());
 			outputStream.println("TASKS:\n");
-			for(int j = 0; j < groups.get(i).tasks.size(); j++){
-				outputStream.println("Task" + j + ":\n");
-				outputStream.println("Name- "+ groups.get(i).tasks.get(j).getName());
-				outputStream.println("Priority- "+ groups.get(i).tasks.get(j).getPriority());
-				outputStream.println("Description- "+ groups.get(i).tasks.get(j).getDescription());
-				outputStream.println("Due Date- "+ groups.get(i).tasks.get(j).getDueDate());
-				outputStream.println(",");
+			for (int j = 0; j < groups.get(i).tasks.size(); j++) {
+				outputStream.println("Task" + j);
+				outputStream.println("Name- "
+						+ groups.get(i).tasks.get(j).getName());
+				outputStream.println("Priority- "
+						+ groups.get(i).tasks.get(j).getPriority());
+				outputStream.println("Description- "
+						+ groups.get(i).tasks.get(j).getDescription());
+				outputStream.println("Due Date- "
+						+ groups.get(i).tasks.get(j).getDueDate());
 			}
 			outputStream.println(";");
 		}
 		outputStream.close();
 	}
-	
+
 	/*
 	 * 
-	 * taskOrGroup - true to sort tasks, false to sort groups
-	 * sortType - type of sort to implement
+	 * taskOrGroup - true to sort tasks, false to sort groups sortType - type of
+	 * sort to implement
 	 */
-	public void sort(boolean taskOrGroup){
+	public void sort(boolean taskOrGroup) {
 		int sortType = -1;
 		boolean valid = false;
-		
-		//pop-up task sort dialogue
-		if (taskOrGroup) {			
-			//create pop-up button options
+
+		// pop-up task sort dialogue
+		if (taskOrGroup) {
+			// create pop-up button options
 			ButtonGroup bg = new ButtonGroup();
 			JRadioButton byName = new JRadioButton("Sort by name");
 			JRadioButton byPrio = new JRadioButton("Sort by priority");
@@ -406,104 +482,104 @@ public class TaskList extends JFrame implements ItemListener {
 			bg.add(byName);
 			bg.add(byPrio);
 			bg.add(byDueDate);
-			
-			//add components to JPanel for pop-up 
+
+			// add components to JPanel for pop-up
 			JPanel myPanel = new JPanel(new GridLayout(3, 1));
 			myPanel.add(byName);
 			myPanel.add(byPrio);
 			myPanel.add(byDueDate);
-			
+
 			while (!valid) {
-				int result = JOptionPane.showConfirmDialog(null, myPanel, 
+				int result = JOptionPane.showConfirmDialog(null, myPanel,
 						"Enter Group Info", JOptionPane.OK_CANCEL_OPTION);
-			    if (result == JOptionPane.OK_OPTION) {
-			    	//get sort type
-			    	if (byName.isSelected()) {
-			    		sortType = 0;
-			    	} else if (byPrio.isSelected()) {
-			    		sortType = 1;
-			    	} else if (byDueDate.isSelected()) {
-			    		sortType = 2;
-			    	}
-			    	
-			    	//check if nothing is selected
-			    	if (sortType == -1) 
-			    		continue;
-			    
-			    	//perform the sort
-			    	for(int i = 0; i < groups.size(); i++)
+				if (result == JOptionPane.OK_OPTION) {
+					// get sort type
+					if (byName.isSelected()) {
+						sortType = 0;
+					} else if (byPrio.isSelected()) {
+						sortType = 1;
+					} else if (byDueDate.isSelected()) {
+						sortType = 2;
+					}
+
+					// check if nothing is selected
+					if (sortType == -1)
+						continue;
+
+					// perform the sort
+					for (int i = 0; i < groups.size(); i++)
 						sortTasks(groups.get(i).tasks, sortType);
 					lv.generatePages(groups);
-					
+
 					valid = true;
-			    } else if (result == JOptionPane.CANCEL_OPTION) {
-			    	valid = true;
-			    }
+				} else if (result == JOptionPane.CANCEL_OPTION) {
+					valid = true;
+				}
 			}
 		} else {
-			//create pop-up button options
+			// create pop-up button options
 			ButtonGroup bg = new ButtonGroup();
 			JRadioButton byName = new JRadioButton("Sort by name");
 			JRadioButton byPrio = new JRadioButton("Sort by priority");
 			bg.add(byName);
 			bg.add(byPrio);
-			
-			//add components to JPanel for pop-up 
+
+			// add components to JPanel for pop-up
 			JPanel myPanel = new JPanel(new GridLayout(2, 1));
 			myPanel.add(byName);
 			myPanel.add(byPrio);
-			
+
 			while (!valid) {
-				int result = JOptionPane.showConfirmDialog(null, myPanel, 
+				int result = JOptionPane.showConfirmDialog(null, myPanel,
 						"Enter Group Info", JOptionPane.OK_CANCEL_OPTION);
-			    if (result == JOptionPane.OK_OPTION) {
-			    	//get sort type
-			    	if (byName.isSelected()) {
-			    		sortType = 0;
-			    	} else if (byPrio.isSelected()) {
-			    		sortType = 1;
-			    	} 
-			    	
-			    	//check if nothing is selected
-			    	if (sortType == -1) 
-			    		continue;
-			    
-			    	//perform the sort
-			    	/*
+				if (result == JOptionPane.OK_OPTION) {
+					// get sort type
+					if (byName.isSelected()) {
+						sortType = 0;
+					} else if (byPrio.isSelected()) {
+						sortType = 1;
+					}
+
+					// check if nothing is selected
+					if (sortType == -1)
+						continue;
+
+					// perform the sort
+					/*
 			    	 * 
 			    	 */
-			    
-			    	sortGroups(sortType);
+
+					sortGroups(sortType);
 					lv.generatePages(groups);
-					
+
 					valid = true;
-			    } else if (result == JOptionPane.CANCEL_OPTION) {
-			    	valid = true;
-			    }
+				} else if (result == JOptionPane.CANCEL_OPTION) {
+					valid = true;
+				}
 			}
 		}
-		
-		
-	}	
-	
-	public void sortGroups(int type){
-		switch(type){
-		
+
+	}
+
+	public void sortGroups(int type) {
+		switch (type) {
+
 		case 0:
 			Collections.sort(groups, sorter.new GroupNameComparator());
 			break;
 		case 1:
 			Collections.sort(groups, sorter.new GroupPriorityComparator());
 			break;
-		
+
 		}
 	}
+
 	/*
 	 * 
 	 */
-	public void sortTasks(ArrayList<Task> t, int type){		
-		switch(type){
-		
+	public void sortTasks(ArrayList<Task> t, int type) {
+		switch (type) {
+
 		case 0:
 			Collections.sort(t, sorter.new TaskNameComparator());
 			break;
@@ -516,10 +592,10 @@ public class TaskList extends JFrame implements ItemListener {
 		case 3:
 			Collections.sort(t, sorter.new TaskAlarmDateComparator());
 			break;
-		
+
 		}
-		
-		//t.sort(null);
+
+		// t.sort(null);
 	}
 	
 	/*
@@ -537,11 +613,7 @@ public class TaskList extends JFrame implements ItemListener {
 			} 
 			//if "Import" is clicked under "File"
 			else if (e.getSource().equals(impt)) {
-				System.out.println("import");
-			} 
-			//if "Export" is clicked under "File"
-			else if (e.getSource().equals(expt)) {
-				System.out.println("export");
+				importFile();
 			} 
 			//if "Exit" is clicked under "File"
 			else if (e.getSource().equals(exit)) {
@@ -566,5 +638,4 @@ public class TaskList extends JFrame implements ItemListener {
 		}
 	}
 }
-
 

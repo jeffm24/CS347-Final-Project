@@ -10,15 +10,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class ListView extends JPanel implements MouseInputListener{
+public class ListView extends JPanel implements MouseInputListener {
 	
 	Rectangle2D.Double right, left;
-	String pageTitle;
+	Rectangle2D.Double titleBorder;
 	ArrayList<ArrayList<ListItem>> listItems;
 	TaskList parent;
 	int currentPage;
 	int xPoints[], yPoints[];
-	boolean hasLeft, hasRight;
 	boolean initLR;
 	
 	/*
@@ -53,6 +52,7 @@ public class ListView extends JPanel implements MouseInputListener{
         g2.setRenderingHints(rh);
 
         //Draw Current Group name (if there is one)
+        String pageTitle;
         g2.setFont(new Font("Ariel", Font.BOLD, 18));
         if (listItems.size() == 0) {
         	pageTitle = "No Groups to Show";
@@ -60,6 +60,8 @@ public class ListView extends JPanel implements MouseInputListener{
         	pageTitle = parent.groups.get(currentPage).getName();
         }
         g2.drawString(pageTitle, this.getWidth() / 2 - (g2.getFontMetrics().stringWidth(pageTitle) / 2), 16);
+        titleBorder = new Rectangle2D.Double(this.getWidth() / 2 - (g2.getFontMetrics().stringWidth(pageTitle) / 2), 0, 
+        		g2.getFontMetrics().stringWidth(pageTitle), g2.getFontMetrics().getHeight());
         	
         //draw the left and right buttons
         drawLRButtons(g2);
@@ -68,17 +70,17 @@ public class ListView extends JPanel implements MouseInputListener{
         for (int i = 0 ; listItems.size() != 0 && i < listItems.get(currentPage).size() ; i++) {
         	listItems.get(currentPage).get(i).drawSelf(g2);
         }
+        
+        //recreate listItems for window resize
+        generatePages(parent.groups);
     }
     
     /*
      * Instructions for drawing the left/right buttons
      */
     public void drawLRButtons(Graphics2D g2) {
-    	if (!initLR) {
-    		right = new Rectangle2D.Double(this.getWidth() - 35, this.getHeight() / 2 - 50, 35, 100);
-    		left = new Rectangle2D.Double(0, this.getHeight() / 2 - 50, 35, 100);
-    		initLR = true;
-    	}
+		right = new Rectangle2D.Double(this.getWidth() - 35, this.getHeight() / 2 - 50, 35, 100);
+		left = new Rectangle2D.Double(0, this.getHeight() / 2 - 50, 35, 100);
     	
         //Right Button
     	g2.setColor(new Color(0, 0, 0, 155));
@@ -126,7 +128,7 @@ public class ListView extends JPanel implements MouseInputListener{
      */
     public void generatePages(ArrayList<Group> groups) {
     	int i, j;
-    	int x, y, w, h;
+    	double x, y, w, h;
     	
     	//clear out the old pages arraylist
     	listItems.clear();
@@ -135,16 +137,18 @@ public class ListView extends JPanel implements MouseInputListener{
     	for (i = 0 ; i < groups.size() ; i++) {
     		listItems.add(new ArrayList<ListItem>());
     		
-    		w = 300 / ((groups.get(i).tasks.size() / 30) + 1);
-    		h = 50  / ((groups.get(i).tasks.size() / 30) + 1);
+    		x = right.width + 10;
+    		y = titleBorder.getHeight();
+    		w = ((this.getWidth() - (left.getWidth() + right.getWidth()) - 20) / 3) / ((groups.get(i).tasks.size() / 30) + 1);
+    		h = ((this.getHeight() - titleBorder.getHeight() - 10) / 11)  / ((groups.get(i).tasks.size() / 30) + 1);
     		
     		//for every task in the current group, create a ListItem with the proper positioning
-    		for (x = 40, y = 30, j = 0 ; j < groups.get(i).tasks.size() ; j++) {
+    		for (j = 0 ; j < groups.get(i).tasks.size() ; j++) {
     			listItems.get(i).add(new ListItem(x, y, w, h, groups.get(i), groups.get(i).tasks.get(j)));
     			
     			//if placing the next task would go out of bounds (of the window), wrap to the next column
     			if (y + h + 10 + h > this.getHeight()) {
-    				y = 30;
+    				y = titleBorder.getHeight();
     				x += w + 10;
     			} else {
     				y += h + 10;
@@ -253,6 +257,52 @@ public class ListView extends JPanel implements MouseInputListener{
     }
     
     /*
+     * Opens up a JOptionPane with info about the current group and the option to edit it.
+     */
+    public void expandGroupInfo() {
+		//create pop-up dialogue fields
+		JTextField nameField = new JTextField();
+		nameField.setText(parent.groups.get(currentPage).getName());
+		JComboBox<Integer> prioBox = new JComboBox<Integer>();
+		for (int i = 1 ; i <= 10 ; i++)
+			prioBox.addItem(i);
+		prioBox.setSelectedItem(parent.groups.get(currentPage).getPriority());
+		JTextField descField = new JTextField();
+		descField.setText(parent.groups.get(currentPage).getDescription());
+		
+		//add components to JPanel for pop-up 
+		JPanel myPanel = new JPanel(new GridLayout(3, 1));
+		myPanel.add(new JLabel("Name:"));
+		myPanel.add(nameField);
+		myPanel.add(new JLabel("Priority:"));
+		myPanel.add(prioBox);
+		myPanel.add(new JLabel("Description:"));
+		myPanel.add(descField);
+		
+		int result = JOptionPane.showConfirmDialog(null, myPanel, 
+				"Edit Task Info", JOptionPane.OK_CANCEL_OPTION);
+	    if (result == JOptionPane.OK_OPTION) {
+	    	while (true) {
+		    	//check if any of the fields were left blank
+		    	if (nameField.getText().equals("") || descField.getText().equals("")) {
+		    		JOptionPane.showMessageDialog(null, "Please make sure all fields are filled out.", "ERROR", JOptionPane.OK_OPTION);
+		    		continue;
+		    	}
+				
+				//set new group info
+				parent.groups.get(currentPage).setName(nameField.getText());
+				parent.groups.get(currentPage).setPriority((int)prioBox.getSelectedItem());
+				parent.groups.get(currentPage).setDescription(descField.getText());
+				
+				//if groups changed re-generate group pages with new tasks  
+      			generatePages(parent.groups);
+  				
+  				break;
+	    	}
+	    }
+    }
+    
+    /*
      * (non-Javadoc)
      * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
      */
@@ -260,27 +310,28 @@ public class ListView extends JPanel implements MouseInputListener{
 	public void mouseClicked(MouseEvent e) {
 		//if the right button is clicked, move page right (if possible)
 		if (right.contains(e.getPoint())) {
-			System.out.println("Right button clicked");
 			if (currentPage < listItems.size() - 1) {
 				currentPage++;
 				repaint();
 			}
 		//if the left button is clicked, move page left (if possible)
 		} else if (left.contains(e.getPoint())) {
-			System.out.println("Left button clicked");
 			if (currentPage > 0) {
 				currentPage--;
 				repaint();
 			}
+		//if the current title is clicked, call the expandGroupInfo() method to open up a JOptionPane for ediitng
+		} else if (parent.groups.size() != 0 && titleBorder.contains(e.getPoint())) {
+			 expandGroupInfo();
 		//if any of the tasks are clicked, call the expandTaskInfo() method to open up a JOptionPane for editing
-		} else if (listItems != null) {
+		} else if (!listItems.isEmpty()) {
 			for (int i = 0 ; i < listItems.get(currentPage).size() ; i++) {
 				if (listItems.get(currentPage).get(i).contains(e.getPoint())) {
 					expandTaskInfo(listItems.get(currentPage).get(i));
 					break;
 				}
 			}
-		} 		
+		}
 	}
 
 	@Override
