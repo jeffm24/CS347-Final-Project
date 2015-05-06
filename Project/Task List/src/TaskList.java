@@ -22,7 +22,7 @@ public class TaskList extends JFrame implements ItemListener {
 
 	JMenuBar menuBar; 					// main menu bar
 	JMenu fileMenu; 					// "File" menu
-	JMenuItem open, save, exit, impt; 	// "File menu items
+	JMenuItem save, exit, impt; 		// "File menu items
 	JMenu addMenu; 						// "Add" menu
 	JMenuItem addTask, addGroup; 		// "Add" menu items
 	JMenu sortMenu; 					// "Sort" menu
@@ -101,9 +101,6 @@ public class TaskList extends JFrame implements ItemListener {
 
 		// create file menu
 		fileMenu = new JMenu("File");
-		open = new JMenuItem("Open");
-		open.addActionListener(ma);
-		fileMenu.add(open);
 		save = new JMenuItem("Save");
 		save.addActionListener(ma);
 		fileMenu.add(save);
@@ -257,11 +254,8 @@ public class TaskList extends JFrame implements ItemListener {
 								valid = true;
 								continue;
 							} catch (ParseException e) {
-								JOptionPane
-										.showMessageDialog(
-												null,
-												"Invalid date format. Please try again.",
-												"ERROR", JOptionPane.OK_OPTION);
+								JOptionPane.showMessageDialog(null, "Invalid date format. Please try again.", 
+										"ERROR", JOptionPane.OK_OPTION);
 								break;
 							}
 						}
@@ -386,9 +380,9 @@ public class TaskList extends JFrame implements ItemListener {
 	 * Imports a save file from the given file path if it exists.
 	 */
 	public boolean importFile(String path) {
-		boolean newGroup = true;
+		//boolean newGroup = true;
 		String line = "";
-		String linearr[];
+		//String linearr[];
 		ArrayList<Group> temp = new ArrayList<Group>();
 		Group g;
 		Task t;
@@ -723,12 +717,8 @@ public class TaskList extends JFrame implements ItemListener {
 	 */
 	class MenuActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			// if "Open" is clicked under "File"
-			if (e.getSource().equals(open)) {
-				System.out.println("open");
-			}
 			// if "Save" is clicked under "File"
-			else if (e.getSource().equals(save)) {
+			if (e.getSource().equals(save)) {
 				save();
 			}
 			// if "Import" is clicked under "File"
