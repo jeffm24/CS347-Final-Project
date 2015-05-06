@@ -420,6 +420,8 @@ public class ListView extends JPanel implements MouseInputListener, ActionListen
 		} else if (e.getSource().equals(removeGroup)) {
 			//remove the current group
 			parent.removeGroup(parent.groups.get(currentPage));
+			if (currentPage != 0)
+				currentPage--;
 			
 			//dispose of JOptionPane pop-up
 			((JDialog)((JButton)e.getSource()).getRootPane().getParent()).dispose();
