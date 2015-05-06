@@ -16,31 +16,31 @@ import javax.swing.*;
 
 public class TaskList extends JFrame implements ItemListener {
 
-	ListView lv; // ListView panel
-	GridView gv; // GridView panel
-	CalendarView cv; // CalendarView panel
+	ListView lv; 						// ListView panel
+	GridView gv; 						// GridView panel
+	CalendarView cv; 					// CalendarView panel
 
-	JMenuBar menuBar; // main menu bar
-	JMenu fileMenu; // "File" menu
-	JMenuItem open, save, exit, impt; // "File menu items
-	JMenu addMenu; // "Add" menu
-	JMenuItem addTask, addGroup; // "Add" menu items
-	JMenu sortMenu; // "Sort" menu
-	JMenuItem sortTasks, sortGroups; // "Sort" menu items
+	JMenuBar menuBar; 					// main menu bar
+	JMenu fileMenu; 					// "File" menu
+	JMenuItem open, save, exit, impt; 	// "File menu items
+	JMenu addMenu; 						// "Add" menu
+	JMenuItem addTask, addGroup; 		// "Add" menu items
+	JMenu sortMenu; 					// "Sort" menu
+	JMenuItem sortTasks, sortGroups; 	// "Sort" menu items
 
-	ArrayList<JPanel> views; // ArrayList to hold the different views
-	int currentView; // Index in views of the current view
+	ArrayList<JPanel> views; 			// ArrayList to hold the different views
+	int currentView; 					// Index in views of the current view
 
-	Sorting sorter; // Sorter class for sorting the lists and groups
-	int currentTaskSort; // Current task sort of the view
-	int currentGroupSort; // Current group sort of the view
+	Sorting sorter; 					// Sorter class for sorting the lists and groups
+	int currentTaskSort; 				// Current task sort of the view
+	int currentGroupSort; 				// Current group sort of the view
 
-	JPanel cardPanel; // CardLayout panel for switching between views
+	JPanel cardPanel; 					// CardLayout panel for switching between views
 
-	JComboBox<String> viewSwitcher; // JComboBox for initiating view switches
-	GridBagConstraints c; // Constraints for the menuBar GridBagLayout
+	JComboBox<String> viewSwitcher; 	// JComboBox for initiating view switches
+	GridBagConstraints c; 				// Constraints for the menuBar GridBagLayout
 
-	ArrayList<Group> groups; // Main ArrayList of all current groups
+	ArrayList<Group> groups; 			// Main ArrayList of all current groups
 
 	/*
 	 * Constructor.

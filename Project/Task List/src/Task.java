@@ -60,7 +60,6 @@ public class Task {
 	}
 	public void setAlarmDate(Date alarmDate) {
 		this.alarmDate = alarmDate;
-		timer = new Timer();
 		timer.schedule(new RemindTask(), alarmDate);
 	}
 	
@@ -69,7 +68,6 @@ public class Task {
 		
 		public void run() {
 			JOptionPane.showMessageDialog(null, name + " is due " + dueDate, "ALARM", JOptionPane.OK_OPTION);			
-			timer.cancel();
 		}
 		
 	}
