@@ -1,6 +1,7 @@
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
-
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.*;
 import java.awt.*;
@@ -9,9 +10,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.TimerTask;
 
-public class ListView extends JPanel implements MouseInputListener {
+public class ListView extends JPanel implements MouseInputListener, ActionListener {
 
 	Rectangle2D.Double right, left;
 	Rectangle2D.Double titleBorder;
@@ -20,7 +20,9 @@ public class ListView extends JPanel implements MouseInputListener {
 	int currentPage;
 	int xPoints[], yPoints[];
 	boolean initLR;
-
+	JButton removeTask, removeGroup;
+	Task openedTask;
+	
 	/*
 	 * Constructor.
 	 */
@@ -175,6 +177,8 @@ public class ListView extends JPanel implements MouseInputListener {
 	 * edit it.
 	 */
 	public void expandTaskInfo(ListItem li) {
+		openedTask = li.myTask;
+		
 		// create pop-up dialogue fields
 		JComboBox<String> groupBox = new JComboBox<String>();
 		for (int i = 0; i < parent.groups.size(); i++)
@@ -198,9 +202,12 @@ public class ListView extends JPanel implements MouseInputListener {
 
 		JFormattedTextField alarmField = new JFormattedTextField(format);
 		alarmField.setText(format.format(li.myTask.getAlarmDate()));
+		
+		removeTask = new JButton("Remove Task");
+		removeTask.addActionListener(this);
 
 		// add components to JPanel for pop-up
-		JPanel myPanel = new JPanel(new GridLayout(6, 1));
+		JPanel myPanel = new JPanel(new GridLayout(7, 1));
 		myPanel.add(new JLabel("Group:"));
 		myPanel.add(groupBox);
 		myPanel.add(new JLabel("Name:"));
@@ -213,6 +220,7 @@ public class ListView extends JPanel implements MouseInputListener {
 		myPanel.add(dateField);
 		myPanel.add(new JLabel("Alarm:"));
 		myPanel.add(alarmField);
+		myPanel.add(removeTask);
 
 		int result = JOptionPane.showConfirmDialog(null, myPanel,
 				"Edit Task Info", JOptionPane.OK_CANCEL_OPTION);
@@ -242,8 +250,7 @@ public class ListView extends JPanel implements MouseInputListener {
 					li.myTask.setAlarmDate(alarmDate);
 
 					// switch groups if necessary
-					if (!li.myGroup.getName()
-							.equals(groupBox.getSelectedItem())) {
+					if (!li.myGroup.getName().equals(groupBox.getSelectedItem())) {
 						Group newGroup = null;
 						String newGroupName = (String) groupBox
 								.getSelectedItem();
@@ -260,15 +267,15 @@ public class ListView extends JPanel implements MouseInputListener {
 						listItems.get(currentPage).remove(li);
 						li.myGroup = newGroup;
 						li.myGroup.addTask(li.myTask);
-						listItems.get(i).add(li);
-
-						// if groups changed re-generate group pages with new
-						// tasks
-						generatePages(parent.groups);
-					} else {
-						// if groups weren't changed, just repaint with new info
-						repaint();
+						listItems.get(i).add(li);	
 					}
+					
+					//re-generate group pages with new tasks in proper sorting order
+					for (int i = 0 ; i < parent.groups.size() ; i++) {
+						parent.sortTasks(parent.groups.get(i).tasks, parent.currentTaskSort);
+					}
+					generatePages(parent.groups);
+					
 
 					break;
 				} catch (ParseException e) {
@@ -278,6 +285,8 @@ public class ListView extends JPanel implements MouseInputListener {
 				}
 			}
 		}
+		
+		openedTask = null;
 	}
 
 	/*
@@ -294,15 +303,19 @@ public class ListView extends JPanel implements MouseInputListener {
 		prioBox.setSelectedItem(parent.groups.get(currentPage).getPriority());
 		JTextField descField = new JTextField();
 		descField.setText(parent.groups.get(currentPage).getDescription());
+		
+		removeGroup = new JButton("Remove Group");
+		removeGroup.addActionListener(this);
 
 		// add components to JPanel for pop-up
-		JPanel myPanel = new JPanel(new GridLayout(3, 1));
+		JPanel myPanel = new JPanel(new GridLayout(4, 1));
 		myPanel.add(new JLabel("Name:"));
 		myPanel.add(nameField);
 		myPanel.add(new JLabel("Priority:"));
 		myPanel.add(prioBox);
 		myPanel.add(new JLabel("Description:"));
 		myPanel.add(descField);
+		myPanel.add(removeGroup);
 
 		int result = JOptionPane.showConfirmDialog(null, myPanel,
 				"Edit Task Info", JOptionPane.OK_CANCEL_OPTION);
@@ -324,7 +337,8 @@ public class ListView extends JPanel implements MouseInputListener {
 				parent.groups.get(currentPage).setDescription(
 						descField.getText());
 
-				// if groups changed re-generate group pages with new tasks
+				// re-generate new pages with groups sorted according to new info
+				parent.sortGroups(parent.currentGroupSort);
 				generatePages(parent.groups);
 
 				break;
@@ -390,5 +404,25 @@ public class ListView extends JPanel implements MouseInputListener {
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
+	}
+
+	@Override
+	/*
+	 * For capturing remove button clicks
+	 */
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource().equals(removeTask)) {
+			//remove the opened task
+			parent.removeTask(parent.groups.get(currentPage), openedTask);
+			
+			//dispose of JOptionPane pop-up
+			((JDialog)((JButton)e.getSource()).getRootPane().getParent()).dispose();
+		} else if (e.getSource().equals(removeGroup)) {
+			//remove the current group
+			parent.removeGroup(parent.groups.get(currentPage));
+			
+			//dispose of JOptionPane pop-up
+			((JDialog)((JButton)e.getSource()).getRootPane().getParent()).dispose();
+		}
 	}
 }

@@ -244,6 +244,9 @@ public class TaskList extends JFrame implements ItemListener {
 										alarm);
 								groups.get(i).addTask(newTask);
 
+								//sort the group that the new task was added to according to current sort
+								sortTasks(groups.get(i).tasks, currentTaskSort);
+								
 								// re-generate pages for listView
 								lv.generatePages(groups);
 
@@ -275,6 +278,14 @@ public class TaskList extends JFrame implements ItemListener {
 			JOptionPane.showMessageDialog(null, "Please create a group first.",
 					"ERROR", JOptionPane.OK_OPTION);
 		}
+	}
+	
+	/*
+	 * Removes the given task from the given group.
+	 */
+	public void removeTask(Group taskGroup, Task remTask) {
+		taskGroup.removeTask(remTask);
+		lv.generatePages(groups);
 	}
 
 	/*
@@ -338,6 +349,9 @@ public class TaskList extends JFrame implements ItemListener {
 							descField.getText());
 					groups.add(newGroup);
 
+					//re-sort groups according to current group sort
+					sortGroups(currentGroupSort);
+					
 					// re-generate pages for listView
 					lv.generatePages(groups);
 
@@ -359,34 +373,18 @@ public class TaskList extends JFrame implements ItemListener {
 			continue;
 		}
 	}
-
+	
 	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * java.awt.event.ItemListener#itemStateChanged(java.awt.event.ItemEvent)
-	 * 
-	 * Gets the state changed event from the JComboBox to switch to the
-	 * appropriate view.
+	 * Removes the given group from the groups ArrayList
 	 */
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		switch ((String) e.getItem()) {
-		case "List View":
-			currentView = 0;
-			break;
-		case "Grid View":
-			currentView = 1;
-			break;
-		case "Calendar View":
-			currentView = 2;
-			break;
-		}
-
-		CardLayout cl = (CardLayout) (cardPanel.getLayout());
-		cl.show(cardPanel, (String) e.getItem());
+	public void removeGroup(Group remGroup) {
+		groups.remove(remGroup);
+		lv.generatePages(groups);
 	}
 
+	/*
+	 * Imports a save file from the given file path if it exists.
+	 */
 	public boolean importFile(String path) {
 		boolean newGroup = true;
 		String line = "";
@@ -472,9 +470,48 @@ public class TaskList extends JFrame implements ItemListener {
 		}
 
 	}
+	
+	/*
+	 * Opens up a dialogue for specifying the file path of the import file.
+	 */
+	public void importFileDialogue() {
+		// create pop-up button options
+		JTextField filePath = new JTextField();
+		JLabel label = new JLabel("File Path:");
+
+		// add components to JPanel for pop-up
+		JPanel myPanel = new JPanel(new GridLayout(2, 1));
+		myPanel.add(label);
+		myPanel.add(filePath);
+
+		while (true) {
+			int result = JOptionPane.showConfirmDialog(null, myPanel,
+					"Enter File Path:", JOptionPane.OK_CANCEL_OPTION);
+			if (result == JOptionPane.OK_OPTION) {
+				if (filePath.getText().length() == 0) {
+					JOptionPane.showMessageDialog(null,
+							"Please make sure the filepath is not empty.",
+							"ERROR", JOptionPane.OK_OPTION);
+					continue;
+				} else {
+					if (importFile(filePath.getText())) {
+						break;
+					} else {
+						JOptionPane.showMessageDialog(null,
+								"Could not find file. Please try again.",
+								"ERROR", JOptionPane.OK_OPTION);
+						continue;
+					}
+				}
+			} else if (result == JOptionPane.CANCEL_OPTION
+					|| result == JOptionPane.CLOSED_OPTION) {
+				break;
+			}
+		}
+	}
 
 	/*
-	 * 
+	 * Saves the current state to the default save location.
 	 */
 	public void save() {
 		String fileName = "../save.txt";
@@ -520,46 +557,7 @@ public class TaskList extends JFrame implements ItemListener {
 	}
 
 	/*
-	 * 
-	 */
-	public void importFileDialogue() {
-		// create pop-up button options
-		JTextField filePath = new JTextField();
-		JLabel label = new JLabel("File Path:");
-
-		// add components to JPanel for pop-up
-		JPanel myPanel = new JPanel(new GridLayout(2, 1));
-		myPanel.add(label);
-		myPanel.add(filePath);
-
-		while (true) {
-			int result = JOptionPane.showConfirmDialog(null, myPanel,
-					"Enter File Path:", JOptionPane.OK_CANCEL_OPTION);
-			if (result == JOptionPane.OK_OPTION) {
-				if (filePath.getText().length() == 0) {
-					JOptionPane.showMessageDialog(null,
-							"Please make sure the filepath is not empty.",
-							"ERROR", JOptionPane.OK_OPTION);
-					continue;
-				} else {
-					if (importFile(filePath.getText())) {
-						break;
-					} else {
-						JOptionPane.showMessageDialog(null,
-								"Could not find file. Please try again.",
-								"ERROR", JOptionPane.OK_OPTION);
-						continue;
-					}
-				}
-			} else if (result == JOptionPane.CANCEL_OPTION
-					|| result == JOptionPane.CLOSED_OPTION) {
-				break;
-			}
-		}
-	}
-
-	/*
-	 * 
+	 * Opens a sort dialogue based on whether the user wants to sort tasks or groups 
 	 * taskOrGroup - true to sort tasks, false to sort groups sortType - type of
 	 * sort to implement
 	 */
@@ -605,6 +603,7 @@ public class TaskList extends JFrame implements ItemListener {
 					for (int i = 0; i < groups.size(); i++)
 						sortTasks(groups.get(i).tasks, sortType);
 					lv.generatePages(groups);
+					currentTaskSort = sortType;
 
 					valid = true;
 				} else if (result == JOptionPane.CANCEL_OPTION) {
@@ -640,12 +639,9 @@ public class TaskList extends JFrame implements ItemListener {
 						continue;
 
 					// perform the sort
-					/*
-			    	 * 
-			    	 */
-
 					sortGroups(sortType);
 					lv.generatePages(groups);
+					currentGroupSort = sortType;
 
 					valid = true;
 				} else if (result == JOptionPane.CANCEL_OPTION
@@ -657,6 +653,9 @@ public class TaskList extends JFrame implements ItemListener {
 
 	}
 
+	/*
+	 * Helper function for sort() to be used for sorting groups.
+	 */
 	public void sortGroups(int type) {
 		switch (type) {
 
@@ -671,7 +670,7 @@ public class TaskList extends JFrame implements ItemListener {
 	}
 
 	/*
-	 * 
+	 * Helper function for sort() to be used for sorting tasks.
 	 */
 	public void sortTasks(ArrayList<Task> t, int type) {
 		switch (type) {
@@ -690,8 +689,33 @@ public class TaskList extends JFrame implements ItemListener {
 			break;
 
 		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * java.awt.event.ItemListener#itemStateChanged(java.awt.event.ItemEvent)
+	 * 
+	 * Gets the state changed event from the JComboBox to switch to the
+	 * appropriate view.
+	 */
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		switch ((String) e.getItem()) {
+		case "List View":
+			currentView = 0;
+			break;
+		case "Grid View":
+			currentView = 1;
+			break;
+		case "Calendar View":
+			currentView = 2;
+			break;
+		}
 
-		// t.sort(null);
+		CardLayout cl = (CardLayout) (cardPanel.getLayout());
+		cl.show(cardPanel, (String) e.getItem());
 	}
 
 	/*
