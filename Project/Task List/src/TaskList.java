@@ -17,7 +17,6 @@ import javax.swing.*;
 public class TaskList extends JFrame implements ItemListener {
 
 	ListView lv; // ListView panel
-	GridView gv; // GridView panel
 	CalendarView cv; // CalendarView panel
 
 	JMenuBar menuBar; // main menu bar
@@ -51,18 +50,15 @@ public class TaskList extends JFrame implements ItemListener {
 		this.setSize(1000, 650);
 		this.setMinimumSize(new Dimension(1000, 650));
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		// this.setResizable(false);
 
 		// initialize the menu bar
 		initMenuBar();
 
 		// create different view panels
 		lv = new ListView(this);
-		gv = new GridView();
 		cv = new CalendarView();
 		views = new ArrayList<JPanel>();
 		views.add(lv);
-		views.add(gv);
 		views.add(cv);
 		currentView = 0;
 
@@ -73,7 +69,6 @@ public class TaskList extends JFrame implements ItemListener {
 		// add all view panels to the cardlayout
 		cardPanel = new JPanel(new CardLayout());
 		cardPanel.add(lv, "List View");
-		cardPanel.add(gv, "Grid View");
 		cardPanel.add(cv, "Calendar View");
 		this.add(cardPanel);
 		this.setContentPane(cardPanel);
@@ -152,7 +147,7 @@ public class TaskList extends JFrame implements ItemListener {
 		menuBar.add(sortMenu, gc);
 
 		// add combo box
-		String comboBoxItems[] = { "List View", "Grid View", "Calendar View" };
+		String comboBoxItems[] = { "List View", "Calendar View" };
 		viewSwitcher = new JComboBox<String>(comboBoxItems);
 		viewSwitcher.setEditable(false);
 		viewSwitcher.addItemListener(this);
@@ -160,6 +155,7 @@ public class TaskList extends JFrame implements ItemListener {
 		gc.weightx = .99;
 		gc.gridx = 3;
 		gc.gridy = 0;
+		viewSwitcher.setEnabled(false);
 		menuBar.add(viewSwitcher, gc);
 
 		this.setJMenuBar(menuBar);
@@ -741,11 +737,8 @@ public class TaskList extends JFrame implements ItemListener {
 		case "List View":
 			currentView = 0;
 			break;
-		case "Grid View":
-			currentView = 1;
-			break;
 		case "Calendar View":
-			currentView = 2;
+			currentView = 1;
 			break;
 		}
 

@@ -147,7 +147,8 @@ public class ListView extends JPanel implements MouseInputListener, ActionListen
 
 			x = left.width + 10;
 			y = titleBorder.getHeight();
-			w = ((this.getWidth() - (left.getWidth() + right.getWidth()) - 20) / 3)
+			
+			w = ((this.getWidth() - (left.getWidth() + right.getWidth()) - 20) / 3) 
 					/ ((groups.get(i).tasks.size() / 30) + 1);
 			h = ((this.getHeight() - titleBorder.getHeight() - 10) / 11)
 					/ ((groups.get(i).tasks.size() / 30) + 1);
@@ -155,9 +156,7 @@ public class ListView extends JPanel implements MouseInputListener, ActionListen
 			// for every task in the current group, create a ListItem with the
 			// proper positioning
 			for (j = 0; j < groups.get(i).tasks.size(); j++) {
-				listItems.get(i).add(
-						new ListItem(x, y, w, h, groups.get(i),
-								groups.get(i).tasks.get(j)));
+				listItems.get(i).add(new ListItem(x, y, w, h, groups.get(i), groups.get(i).tasks.get(j)));
 
 				// if placing the next task would go out of bounds (of the
 				// window), wrap to the next column
