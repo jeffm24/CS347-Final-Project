@@ -16,31 +16,31 @@ import javax.swing.*;
 
 public class TaskList extends JFrame implements ItemListener {
 
-	ListView lv; 						// ListView panel
-	GridView gv; 						// GridView panel
-	CalendarView cv; 					// CalendarView panel
+	ListView lv; // ListView panel
+	GridView gv; // GridView panel
+	CalendarView cv; // CalendarView panel
 
-	JMenuBar menuBar; 					// main menu bar
-	JMenu fileMenu; 					// "File" menu
-	JMenuItem save, exit, impt; 		// "File menu items
-	JMenu addMenu; 						// "Add" menu
-	JMenuItem addTask, addGroup; 		// "Add" menu items
-	JMenu sortMenu; 					// "Sort" menu
-	JMenuItem sortTasks, sortGroups; 	// "Sort" menu items
+	JMenuBar menuBar; // main menu bar
+	JMenu fileMenu; // "File" menu
+	JMenuItem save, exit, impt, expt; // "File menu items
+	JMenu addMenu; // "Add" menu
+	JMenuItem addTask, addGroup; // "Add" menu items
+	JMenu sortMenu; // "Sort" menu
+	JMenuItem sortTasks, sortGroups; // "Sort" menu items
 
-	ArrayList<JPanel> views; 			// ArrayList to hold the different views
-	int currentView; 					// Index in views of the current view
+	ArrayList<JPanel> views; // ArrayList to hold the different views
+	int currentView; // Index in views of the current view
 
-	Sorting sorter; 					// Sorter class for sorting the lists and groups
-	int currentTaskSort; 				// Current task sort of the view
-	int currentGroupSort; 				// Current group sort of the view
+	Sorting sorter; // Sorter class for sorting the lists and groups
+	int currentTaskSort; // Current task sort of the view
+	int currentGroupSort; // Current group sort of the view
 
-	JPanel cardPanel; 					// CardLayout panel for switching between views
+	JPanel cardPanel; // CardLayout panel for switching between views
 
-	JComboBox<String> viewSwitcher; 	// JComboBox for initiating view switches
-	GridBagConstraints c; 				// Constraints for the menuBar GridBagLayout
+	JComboBox<String> viewSwitcher; // JComboBox for initiating view switches
+	GridBagConstraints c; // Constraints for the menuBar GridBagLayout
 
-	ArrayList<Group> groups; 			// Main ArrayList of all current groups
+	ArrayList<Group> groups; // Main ArrayList of all current groups
 
 	/*
 	 * Constructor.
@@ -104,6 +104,9 @@ public class TaskList extends JFrame implements ItemListener {
 		save = new JMenuItem("Save");
 		save.addActionListener(ma);
 		fileMenu.add(save);
+		expt = new JMenuItem("Export");
+		expt.addActionListener(ma);
+		fileMenu.add(expt);
 		impt = new JMenuItem("Import");
 		impt.addActionListener(ma);
 		fileMenu.add(impt);
@@ -241,9 +244,10 @@ public class TaskList extends JFrame implements ItemListener {
 										alarm);
 								groups.get(i).addTask(newTask);
 
-								//sort the group that the new task was added to according to current sort
+								// sort the group that the new task was added to
+								// according to current sort
 								sortTasks(groups.get(i).tasks, currentTaskSort);
-								
+
 								// re-generate pages for listView
 								lv.generatePages(groups);
 
@@ -254,8 +258,11 @@ public class TaskList extends JFrame implements ItemListener {
 								valid = true;
 								continue;
 							} catch (ParseException e) {
-								JOptionPane.showMessageDialog(null, "Invalid date format. Please try again.", 
-										"ERROR", JOptionPane.OK_OPTION);
+								JOptionPane
+										.showMessageDialog(
+												null,
+												"Invalid date format. Please try again.",
+												"ERROR", JOptionPane.OK_OPTION);
 								break;
 							}
 						}
@@ -273,7 +280,7 @@ public class TaskList extends JFrame implements ItemListener {
 					"ERROR", JOptionPane.OK_OPTION);
 		}
 	}
-	
+
 	/*
 	 * Removes the given task from the given group.
 	 */
@@ -343,9 +350,9 @@ public class TaskList extends JFrame implements ItemListener {
 							descField.getText());
 					groups.add(newGroup);
 
-					//re-sort groups according to current group sort
+					// re-sort groups according to current group sort
 					sortGroups(currentGroupSort);
-					
+
 					// re-generate pages for listView
 					lv.generatePages(groups);
 
@@ -367,7 +374,7 @@ public class TaskList extends JFrame implements ItemListener {
 			continue;
 		}
 	}
-	
+
 	/*
 	 * Removes the given group from the groups ArrayList
 	 */
@@ -380,9 +387,9 @@ public class TaskList extends JFrame implements ItemListener {
 	 * Imports a save file from the given file path if it exists.
 	 */
 	public boolean importFile(String path) {
-		//boolean newGroup = true;
+		// boolean newGroup = true;
 		String line = "";
-		//String linearr[];
+		// String linearr[];
 		ArrayList<Group> temp = new ArrayList<Group>();
 		Group g;
 		Task t;
@@ -464,7 +471,42 @@ public class TaskList extends JFrame implements ItemListener {
 		}
 
 	}
-	
+
+	public void exportFileDialogue() {
+		// create pop-up button options
+		JTextField filePath = new JTextField();
+		JLabel label = new JLabel("Export To:");
+
+		// add components to JPanel for pop-up
+		JPanel myPanel = new JPanel(new GridLayout(2, 1));
+		myPanel.add(label);
+		myPanel.add(filePath);
+
+		while (true) {
+			int result = JOptionPane.showConfirmDialog(null, myPanel,
+					"Enter File Path:", JOptionPane.OK_CANCEL_OPTION);
+			if (result == JOptionPane.OK_OPTION) {
+				if (filePath.getText().length() == 0) {
+					JOptionPane.showMessageDialog(null,
+							"Please make sure the filepath is not empty.",
+							"ERROR", JOptionPane.OK_OPTION);
+					continue;
+				} else {
+					if (save(filePath.getText())) {
+						break;
+					} else {
+						JOptionPane.showMessageDialog(null,
+								"Could not find file. Please try again.",
+								"ERROR", JOptionPane.OK_OPTION);
+						continue;
+					}
+				}
+			} else if (result == JOptionPane.CANCEL_OPTION
+					|| result == JOptionPane.CLOSED_OPTION) {
+				break;
+			}
+		}
+	}
 	/*
 	 * Opens up a dialogue for specifying the file path of the import file.
 	 */
@@ -507,8 +549,7 @@ public class TaskList extends JFrame implements ItemListener {
 	/*
 	 * Saves the current state to the default save location.
 	 */
-	public void save() {
-		String fileName = "../save.txt";
+	public boolean save(String fileName) {
 		PrintWriter outputStream = null;
 		DateFormat format = new SimpleDateFormat("yyyy/MM/dd");
 
@@ -518,7 +559,7 @@ public class TaskList extends JFrame implements ItemListener {
 
 		} catch (FileNotFoundException e) {
 			System.out.println("Error opening the file " + fileName);
-			System.exit(0);
+			return false;
 		}
 		for (int i = 0; i < groups.size(); i++) {
 			outputStream.println("Group" + i);
@@ -539,8 +580,7 @@ public class TaskList extends JFrame implements ItemListener {
 						.println("Due Date- "
 								+ format.format(groups.get(i).tasks.get(j)
 										.getDueDate()));
-				outputStream
-				.println("Alarm Date- "
+				outputStream.println("Alarm Date- "
 						+ format.format(groups.get(i).tasks.get(j)
 								.getAlarmDate()));
 
@@ -548,12 +588,13 @@ public class TaskList extends JFrame implements ItemListener {
 			outputStream.println(";");
 		}
 		outputStream.close();
+		return true;
 	}
 
 	/*
-	 * Opens a sort dialogue based on whether the user wants to sort tasks or groups 
-	 * taskOrGroup - true to sort tasks, false to sort groups sortType - type of
-	 * sort to implement
+	 * Opens a sort dialogue based on whether the user wants to sort tasks or
+	 * groups taskOrGroup - true to sort tasks, false to sort groups sortType -
+	 * type of sort to implement
 	 */
 	public void sort(boolean taskOrGroup) {
 		int sortType = -1;
@@ -684,7 +725,7 @@ public class TaskList extends JFrame implements ItemListener {
 
 		}
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -719,11 +760,15 @@ public class TaskList extends JFrame implements ItemListener {
 		public void actionPerformed(ActionEvent e) {
 			// if "Save" is clicked under "File"
 			if (e.getSource().equals(save)) {
-				save();
+				save("../save.txt");
 			}
 			// if "Import" is clicked under "File"
 			else if (e.getSource().equals(impt)) {
 				importFileDialogue();
+			}
+			// if "Export" is clicked under "File"
+			else if (e.getSource().equals(expt)) {
+				exportFileDialogue();
 			}
 			// if "Exit" is clicked under "File"
 			else if (e.getSource().equals(exit)) {
