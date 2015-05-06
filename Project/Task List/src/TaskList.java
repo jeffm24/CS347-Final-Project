@@ -82,8 +82,11 @@ public class TaskList extends JFrame implements ItemListener {
 
 		this.pack();
 		this.setVisible(true);
-		
-		importFile("../save.txt");
+		try {
+			importFile("../save.txt");
+		} catch (Exception e) {
+
+		}
 	}
 
 	/*
@@ -384,7 +387,7 @@ public class TaskList extends JFrame implements ItemListener {
 		cl.show(cardPanel, (String) e.getItem());
 	}
 
-	public boolean importFile(String path)  {		
+	public boolean importFile(String path) {
 		boolean newGroup = true;
 		String line = "";
 		String linearr[];
@@ -405,48 +408,51 @@ public class TaskList extends JFrame implements ItemListener {
 				g.setPriority(Integer.parseInt(inputStream.readLine()
 						.substring(10)));
 				g.setDescription(inputStream.readLine().substring(13));
-				//System.out.println("1. " + inputStream.readLine());
-				//System.out.println("2. " + inputStream.readLine());
-				//System.out.println("3. " + inputStream.readLine());
-				
-				//System.out.println("SKIP -->" + inputStream.readLine());
-				//line = inputStream.readLine();
-				//System.out.println(line);
+				// System.out.println("1. " + inputStream.readLine());
+				// System.out.println("2. " + inputStream.readLine());
+				// System.out.println("3. " + inputStream.readLine());
+
+				// System.out.println("SKIP -->" + inputStream.readLine());
+				// line = inputStream.readLine();
+				// System.out.println(line);
 				inputStream.readLine();
 				inputStream.readLine();
 				while (true) {
-					
+
 					line = inputStream.readLine();
-					//System.out.println("CHECK THIS -->" +line);
+					// System.out.println("CHECK THIS -->" +line);
 					if (line.compareTo(";") != 0) {
-						//System.out.println("Entering tasks");
-						
+						// System.out.println("Entering tasks");
+
 						t = new Task();
-						//System.out.println("1. " + inputStream.readLine());
-						//System.out.println("2. " + inputStream.readLine());
-						//System.out.println("3. " + inputStream.readLine());
+						// System.out.println("1. " + inputStream.readLine());
+						// System.out.println("2. " + inputStream.readLine());
+						// System.out.println("3. " + inputStream.readLine());
 						t.setName(inputStream.readLine().substring(6));
-						t.setPriority(Integer.parseInt(inputStream.readLine().substring(10)));
+						t.setPriority(Integer.parseInt(inputStream.readLine()
+								.substring(10)));
 						t.setDescription(inputStream.readLine().substring(13));
 						Date dueDate = null;
 						try {
-							dueDate = format.parse(inputStream.readLine().substring(10));
+							dueDate = format.parse(inputStream.readLine()
+									.substring(10));
 						} catch (ParseException e) {
-						
+
 						}
 						t.setDueDate(dueDate);
-						//System.out.println("SKIP -->" + inputStream.readLine());
-						//System.out.println("SKIP -->" +inputStream.readLine());
-						//inputStream.readLine();
-						//inputStream.readLine();
+						// System.out.println("SKIP -->" +
+						// inputStream.readLine());
+						// System.out.println("SKIP -->"
+						// +inputStream.readLine());
+						// inputStream.readLine();
+						// inputStream.readLine();
 						g.addTask(t);
-					}
-					else
+					} else
 						break;
 				}
 
 				temp.add(g);
-				//inputStream.readLine();
+				// inputStream.readLine();
 			}
 			groups = temp;
 			inputStream.close();
@@ -456,8 +462,8 @@ public class TaskList extends JFrame implements ItemListener {
 		}
 
 		catch (IOException e) {
-			//System.out.println("Error loading location");
-			//System.exit(0);
+			// System.out.println("Error loading location");
+			// System.exit(0);
 			return false;
 		}
 
@@ -494,14 +500,17 @@ public class TaskList extends JFrame implements ItemListener {
 						+ groups.get(i).tasks.get(j).getPriority());
 				outputStream.println("Description- "
 						+ groups.get(i).tasks.get(j).getDescription());
-				outputStream.println("Due Date- "
-						+ format.format(groups.get(i).tasks.get(j).getDueDate()) );
-				
+				outputStream
+						.println("Due Date- "
+								+ format.format(groups.get(i).tasks.get(j)
+										.getDueDate()));
+
 			}
 			outputStream.println(";");
 		}
 		outputStream.close();
 	}
+
 	/*
 	 * 
 	 */
@@ -540,8 +549,6 @@ public class TaskList extends JFrame implements ItemListener {
 			}
 		}
 	}
-
-	
 
 	/*
 	 * 

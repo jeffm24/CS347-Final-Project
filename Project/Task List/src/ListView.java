@@ -142,7 +142,7 @@ public class ListView extends JPanel implements MouseInputListener {
 		for (i = 0; i < groups.size(); i++) {
 			listItems.add(new ArrayList<ListItem>());
 
-			x = right.width + 10;
+			x = left.width + 10;
 			y = titleBorder.getHeight();
 			w = ((this.getWidth() - (left.getWidth() + right.getWidth()) - 20) / 3)
 					/ ((groups.get(i).tasks.size() / 30) + 1);
