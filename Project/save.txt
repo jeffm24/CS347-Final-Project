@@ -8,12 +8,12 @@ Task0
 Name- sdf
 Priority- 1
 Description- fdsf
-Due Date- Tue May 05 23:34:23 EDT 2015
+Due Date- 1995/03/12
 Task1
 Name- wd
 Priority- 1
 Description- sd
-Due Date- Tue May 05 23:34:23 EDT 2015
+Due Date- 1995/03/12
 ;
 Group1
 Name- karan
@@ -25,10 +25,5 @@ Task0
 Name- kl
 Priority- 1
 Description- sad
-Due Date- Tue May 05 23:34:23 EDT 2015
-Task1
-Name- ww
-Priority- 1
-Description- wed
-Due Date- Tue Dec 12 00:00:00 EST 1995
+Due Date- 1995/03/12
 ;
