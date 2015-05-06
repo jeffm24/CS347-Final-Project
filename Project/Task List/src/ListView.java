@@ -318,7 +318,7 @@ public class ListView extends JPanel implements MouseInputListener, ActionListen
 		myPanel.add(removeGroup);
 
 		int result = JOptionPane.showConfirmDialog(null, myPanel,
-				"Edit Task Info", JOptionPane.OK_CANCEL_OPTION);
+				"Edit Group Info", JOptionPane.OK_CANCEL_OPTION);
 		if (result == JOptionPane.OK_OPTION) {
 			while (true) {
 				// check if any of the fields were left blank
