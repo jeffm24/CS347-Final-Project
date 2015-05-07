@@ -1,0 +1,12 @@
+Group: CS370 created successfully.
+Group already exists.
+Group: CS347 created successfully.
+Group: CS511 created successfully.
+Group: CS442 created successfully.
+Tasks sorted in alphabetical order.
+Groups sorted by priority.
+Created task: Thread Program in group: CS511
+Tasks sorted by priority.
+Saved file successfully.
+Exported file successfully.
+Exiting Program.

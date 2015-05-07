@@ -285,9 +285,10 @@ public class TaskList extends JFrame implements ItemListener {
 	/*
 	 * Removes the given task from the given group.
 	 */
-	public void removeTask(Group taskGroup, Task remTask) {
-		taskGroup.removeTask(remTask);
+	public boolean removeTask(Group taskGroup, Task remTask) {
+		boolean ret = taskGroup.removeTask(remTask);
 		lv.generatePages(groups);
+		return ret;
 	}
 
 	/*

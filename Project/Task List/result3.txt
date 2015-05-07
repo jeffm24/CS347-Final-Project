@@ -1,0 +1,13 @@
+Group: QF101 created successfully.
+Created task: Invest in group: QF101
+Created task: Invest2 in group: QF101
+Created task: Invest3 in group: QF101
+Created task: Invest4 in group: QF101
+Created task: Invest5 in group: QF101
+Tasks sorted in alphabetical order.
+Groups sorted in alphabetical order.
+Tasks sorted by priority.
+Groups sorted by priority.
+Groups sorted in alphabetical order.
+Tasks sorted by priority.
+Exiting Program.

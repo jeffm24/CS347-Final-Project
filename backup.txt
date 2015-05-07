@@ -1,0 +1,71 @@
+Group0
+Name- CS370
+Priority- 1
+Description- Team Programming
+TASKS:
+
+;
+Group1
+Name- CS442
+Priority- 1
+Description- Operating Systems
+TASKS:
+
+;
+Group2
+Name- CS492
+Priority- 1
+Description- Operating Systems
+TASKS:
+
+Task0
+Name- FileSystems
+Priority- 1
+Description- Simulate a Unix Based File System
+Due Date- 2015/09/22
+Alarm Date- 2015/08/20
+Task1
+Name- FileSystems
+Priority- 1
+Description- Simulate a Unix Based File System
+Due Date- 2015/09/22
+Alarm Date- 2015/08/20
+Task2
+Name- Virtual Memory
+Priority- 2
+Description- Simulate a VMU
+Due Date- 2015/09/22
+Alarm Date- 2015/08/20
+Task3
+Name- ProducerConsumer
+Priority- 3
+Description- Thread Programming
+Due Date- 2015/09/22
+Alarm Date- 2015/08/20
+Task4
+Name- ProducerConsumer
+Priority- 3
+Description- Thread Programming
+Due Date- 2015/09/22
+Alarm Date- 2015/08/20
+;
+Group3
+Name- CS511
+Priority- 1
+Description- Concurrent Programming
+TASKS:
+
+Task0
+Name- Thread Program
+Priority- 2
+Description- Read Write Problem
+Due Date- 2015/09/22
+Alarm Date- 2015/08/20
+;
+Group4
+Name- CS347
+Priority- 6
+Description- Software Dev
+TASKS:
+
+;

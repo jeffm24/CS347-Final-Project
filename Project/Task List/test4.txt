@@ -1,0 +1,35 @@
+import
+.../../backup.txt
+addgroup
+CS492
+1
+Operating Systems
+addtask
+CS492
+FileSystems
+1
+Simulate a Unix Based File System
+2015/09/22
+2015/08/20
+sorttasks
+0
+sortgroups
+1
+addtask
+CS492
+Virtual Memory
+2
+Simulate a VMU
+2015/09/22
+2015/08/20
+addtask
+CS492
+ProducerConsumer
+3
+Thread Programming
+2015/09/22
+2015/08/20
+sorttasks
+1
+save
+exit

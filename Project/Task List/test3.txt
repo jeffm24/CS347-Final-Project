@@ -1,0 +1,54 @@
+addgroup
+QF101
+1
+Portfolio Investing
+addtask
+QF101
+Invest
+1
+Buy shares of twitter
+2015/09/22
+2015/08/20
+addtask
+QF101
+Invest2
+1
+Buy shares of google
+2015/09/22
+2015/08/20
+addtask
+QF101
+Invest3
+1
+Buy shares of apple
+2015/09/22
+2015/08/20
+addtask
+QF101
+Invest4
+1
+Buy shares of jpmc
+2015/09/22
+2015/08/20
+addtask
+QF101
+Invest5
+1
+Buy shares of nasdaq
+2015/09/22
+2015/08/20
+sorttasks
+0
+sortgroups
+0
+sorttasks
+1
+sortgroups
+1
+sorttasks
+2
+sortgroups
+0
+sorttasks
+1
+exit
