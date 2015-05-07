@@ -290,6 +290,21 @@ public class TaskList extends JFrame implements ItemListener {
 		lv.generatePages(groups);
 		return ret;
 	}
+	
+	public int findTask(int g,String t){
+		for(int i = 0; i < groups.get(g).tasks.size(); i++)
+			if(groups.get(g).tasks.get(i).getName().compareTo(t) == 0){
+				return i;
+			}
+		return -1;
+	}
+	public int findGroup(String g){
+		for(int i = 0; i < groups.size(); i++)
+			if(groups.get(i).getName().compareTo(g) == 0){
+				return i;
+			}
+		return -1;
+	}
 
 	/*
 	 * Creates a JOptionPane to get input from the user for adding a group. Adds

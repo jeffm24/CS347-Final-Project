@@ -12,14 +12,14 @@ public class TaskListMain {
 	public static void main(String[] args) {
 		TaskList tl = new TaskList("Task List");
 		if (args.length != 0 && args[0].equals("test")) {
-		
+
 			String line = "";
 			BufferedReader inputStream = null;
 			final File file = new File(args[1]);
 			try {
 				File save = new File("../save.txt");
 				File save2 = new File("../save.txt");
-			
+
 				inputStream = new BufferedReader(new FileReader(file));
 				while ((line = inputStream.readLine()) != null) {
 					save.delete();
@@ -34,21 +34,24 @@ public class TaskListMain {
 						}
 
 						break;
-				
+
 					case "import":
 						// FORMAT: "import [filePath]
 						String importPath = inputStream.readLine();
 
 						if (importPath.length() == 0) {
-							System.out.println("Please make sure the filepath is not empty.");
-							
+							System.out
+									.println("Please make sure the filepath is not empty.");
+
 						} else {
 							if (tl.importFile(importPath)) {
-								System.out.println("Successfully Imported " + line);
-							
+								System.out.println("Successfully Imported "
+										+ line);
+
 							} else {
-								System.out.println("Could not find file. Please try again.");
-								
+								System.out
+										.println("Could not find file. Please try again.");
+
 							}
 						}
 						break;
@@ -62,7 +65,8 @@ public class TaskListMain {
 							break;
 						} else {
 							if (tl.save(exportPath)) {
-								System.out.println("Exported file successfully.");
+								System.out
+										.println("Exported file successfully.");
 								break;
 							} else {
 								System.out
@@ -89,10 +93,14 @@ public class TaskListMain {
 										DateFormat format = new SimpleDateFormat(
 												"yyyy/MM/dd");
 										String name = inputStream.readLine();
-										int priority = Integer.parseInt(inputStream.readLine());
+										int priority = Integer
+												.parseInt(inputStream
+														.readLine());
 										String desc = inputStream.readLine();
-										Date date = format.parse(inputStream.readLine());
-										Date alarm = format.parse(inputStream.readLine());
+										Date date = format.parse(inputStream
+												.readLine());
+										Date alarm = format.parse(inputStream
+												.readLine());
 
 										// check if any of the fields were left
 										// blank
@@ -173,11 +181,45 @@ public class TaskListMain {
 									+ " created successfully.");
 						}
 						break;
+					case "removetask":
+						String groupname = inputStream.readLine();
+						String taskname= inputStream.readLine();
+
+						int grp,tsk;
+						if((grp = tl.findGroup(groupname)) != -1){
+							if((tsk = tl.findTask(grp, taskname)) != -1){
+								tl.groups.get(grp).tasks.remove(tsk);
+								System.out.println("Removed task: "
+										+ taskname + " in group: "
+										+ groupname);
+							}
+							else{
+								System.out.println("Task doesn't exist");
+							}
+						}
+						else{
+							System.out.println("Group doesn't exist");
+						}
+						
+						break;
+					case "removegroup":
+
+						String groupName = inputStream.readLine();
+						int g = tl.findGroup(groupName);
+						if(g != -1){
+							tl.groups.remove(g);
+							System.out.println(groupName + " has been removed.");
+						}
+						else{
+							System.out.println("Group doesn't exist");
+						}
+
+						break;
 					case "sorttasks":
 						// FORMAT:
 						// "sorttasks [0-alphabetical / 1-priority / 2-due date]"
 						int sortType = Integer.parseInt(inputStream.readLine());
-						
+
 						switch (sortType) {
 						case 0:
 							for (int i = 0; i < tl.groups.size(); i++)
@@ -200,7 +242,8 @@ public class TaskListMain {
 						break;
 					case "sortgroups":
 						// FORMAT: "sortgroups [0-alphabetical / 1-priority]"
-						int sortType2 = Integer.parseInt(inputStream.readLine());
+						int sortType2 = Integer
+								.parseInt(inputStream.readLine());
 
 						switch (sortType2) {
 						case 0:

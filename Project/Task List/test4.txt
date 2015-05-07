@@ -1,5 +1,3 @@
-import
-.../../backup.txt
 addgroup
 CS492
 1
@@ -29,7 +27,16 @@ ProducerConsumer
 Thread Programming
 2015/09/22
 2015/08/20
-sorttasks
-1
-save
+removetask
+CS492
+FileSystems
+removetask
+CS492
+Virtual Memory
+removetask
+CS492
+ProducerConsumer
+removegroup
+CS492
 exit
+
