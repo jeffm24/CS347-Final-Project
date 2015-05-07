@@ -41,6 +41,11 @@ public class TaskList extends JFrame implements ItemListener {
 
 	ArrayList<Group> groups; // Main ArrayList of all current groups
 
+	public TaskList(ArrayList<Group> g){
+	
+		groups = g;
+		
+	}
 	/*
 	 * Constructor.
 	 */
@@ -615,7 +620,7 @@ public class TaskList extends JFrame implements ItemListener {
 
 			while (!valid) {
 				int result = JOptionPane.showConfirmDialog(null, myPanel,
-						"Enter Group Info", JOptionPane.OK_CANCEL_OPTION);
+						"Sort By", JOptionPane.OK_CANCEL_OPTION);
 				if (result == JOptionPane.OK_OPTION) {
 					// get sort type
 					if (byName.isSelected()) {
@@ -656,7 +661,7 @@ public class TaskList extends JFrame implements ItemListener {
 
 			while (!valid) {
 				int result = JOptionPane.showConfirmDialog(null, myPanel,
-						"Enter Group Info", JOptionPane.OK_CANCEL_OPTION);
+						"Sort By", JOptionPane.OK_CANCEL_OPTION);
 				if (result == JOptionPane.OK_OPTION) {
 					// get sort type
 					if (byName.isSelected()) {

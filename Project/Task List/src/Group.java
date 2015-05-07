@@ -28,14 +28,15 @@ public class Group {
 		return -1;
 	}
 	
-	public void removeTask(Task t) {
+	public boolean removeTask(Task t) {
 		if (t != null) {
 			for (int i = 0 ; i < tasks.size() ; i++) {
 				if (tasks.get(i).getName().equals(t.getName())) {
-					tasks.remove(t);
+					return tasks.remove(t);
 				}
 			}
 		}
+		return false;
 	}
 	
 	public Task getTask(String name){

@@ -2,6 +2,7 @@ import java.util.Comparator;
 
 public class Sorting {
 
+	//testing sort by name
 	public class TaskNameComparator implements Comparator<Task> {
 
 		@Override
@@ -10,7 +11,7 @@ public class Sorting {
 		}
 
 	}
-
+	//testing sort by priority
 	public class TaskPriorityComparator implements Comparator<Task> {
 
 		@Override
@@ -19,7 +20,7 @@ public class Sorting {
 		}
 
 	}
-
+	//testing sort by due date
 	public class TaskDueDateComparator implements Comparator<Task> {
 
 		@Override
@@ -28,6 +29,7 @@ public class Sorting {
 		}
 
 	}
+	//testing sort by alarm date
 	public class TaskAlarmDateComparator implements Comparator<Task> {
 
 		@Override
@@ -36,6 +38,7 @@ public class Sorting {
 		}
 
 	}
+	//testing sort by name
 	public class GroupNameComparator implements Comparator<Group> {
 
 		@Override
@@ -44,7 +47,7 @@ public class Sorting {
 		}
 
 	}
-
+	//testing sort by priority
 	public class GroupPriorityComparator implements Comparator<Group> {
 
 		@Override
